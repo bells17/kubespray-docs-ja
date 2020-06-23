@@ -48,7 +48,7 @@ cat inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root cluster.yml
 ```
 
-注意: Ansible が既にコントロールマシンにシステムパッケージを介してインストールされている場合、 `sudo pip install -r requirements.txt` でインストールされた他の python パッケージは Ansible とは異なるディレクトリツリー(例: Ubuntuの `/usr/local/lib/python2.7/dist-packages`)に移動します(例: Ubuntuの `/usr/lib/python2.7/dist-packages/ansible` のまま)。
+注意: Ansible が既にコントロールマシンにシステムパッケージを介してインストールされている場合、 `sudo pip install -r requirements.txt` でインストールされた他の python パッケージは Ansible とは異なるディレクトリツリー(例: Ubuntuの `/usr/local/lib/python2.7/dist-packages`)に移動します(例: Ubuntuの `/usr/lib/python2.7/dist-packages/ansible`)。
 その場合`ansible-playbook` コマンドで以下のエラーが出て失敗します。
 
 ```raw
@@ -69,7 +69,7 @@ Pythonとpipがインストールされているか確認します:
 python -V && pip -V
 ```
 
-これでバージョンが返ってくれば問題ありません。そうでない場合は、ここからPythonをダウンロードしてインストールしてください <https://www.python.org/downloads/source/>
+これでバージョンが返ってくれば問題ありません。そうでない場合は、ここからPythonをダウンロードしてインストールしてください <https://www.python.org/downloads/source/>。
 必要な要件をインストールする
 
 ```ShellSession
@@ -198,9 +198,9 @@ Note: Upstart/SysV initベースのOSタイプはサポートしてません。
 
 - [multus](docs/multus.md): Multus is a meta CNI plugin that provides multiple network interface support to pods. For each interface Multus delegates CNI calls to secondary CNI plugins such as Calico, macvlan, etc.
 
-The choice is defined with the variable `kube_network_plugin`. There is also an
-option to leverage built-in cloud provider networking instead.
-See also [Network checker](docs/netcheck.md).
+どのネットワークプラグインを選ぶかは変数 `kube_network_plugin` で定義されています。
+代わりに組み込みのクラウドプロバイダのネットワークを利用するオプションもあります。
+[Network checker](docs/netcheck.md)も参照してください。
 
 ## Community docs and resources
 
