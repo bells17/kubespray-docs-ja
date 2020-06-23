@@ -6,7 +6,7 @@ Kubesprayドキュメント(日本語訳)
 
 ---
 
-# Deploy a Production Ready Kubernetes Cluster
+# 本番環境に対応したKubernetesクラスタの導入
 
 ![Kubernetes Logo](https://raw.githubusercontent.com/kubernetes-sigs/kubespray/master/docs/img/kubernetes-logo.png)
 
