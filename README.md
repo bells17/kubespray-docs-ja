@@ -3,6 +3,7 @@
 - この翻訳は[Kubespary](https://github.com/kubernetes-sigs/kubespray)のドキュメントの非公式日本語訳です
 - 個人の学習用に適当に翻訳しているだけなので、間違いなどが多々あるかもしれません
 - 翻訳は[v2.13.2](https://github.com/kubernetes-sigs/kubespray/tree/v2.13.2)ベースです
+- サイドバーのタイトルが日本語になっているページは基本的に翻訳済のページです
 
 ---
 
