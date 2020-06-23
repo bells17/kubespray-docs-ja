@@ -1,20 +1,15 @@
-# Getting started
+# はじめに
 
-## Building your own inventory
+## inventoryを構築する
 
-Ansible inventory can be stored in 3 formats: YAML, JSON, or INI-like. There is
-an example inventory located
-[here](https://github.com/kubernetes-sigs/kubespray/blob/master/inventory/sample/inventory.ini).
+Ansibleのインベントリは3つの形式で保存できます。YAML、JSON、INI的なものがあります。[ここ]((https://github.com/kubernetes-sigs/kubespray/blob/master/inventory/sample/inventory.ini))にインベントリの例があります。
 
-You can use an
-[inventory generator](https://github.com/kubernetes-sigs/kubespray/blob/master/contrib/inventory_builder/inventory.py)
-to create or modify an Ansible inventory. Currently, it is limited in
-functionality and is only used for configuring a basic Kubespray cluster inventory, but it does
-support creating inventory file for large clusters as well. It now supports
-separated ETCD and Kubernetes master roles from node role if the size exceeds a
-certain threshold. Run `python3 contrib/inventory_builder/inventory.py help` for more information.
+Ansible inventoryを作成・修正するには、[inventory generator](https://github.com/kubernetes-sigs/kubespray/blob/master/contrib/inventory_builder/inventory.py) を使用します。
+現在のところ、機能が制限されており、基本的なKubesprayクラスタインベントリの設定にしか使用されていませんが、大規模クラスタ用のインベントリファイルの作成もサポートしています。
+これはサイズが特定のしきい値を超えた場合に、ETCDおよびKubernetesマスターのroleをノードのroleからの分離することができるというものです。
+詳細については `python3 contrib/inventory_builder/inventory.py help` を実行してください。
 
-Example inventory generator usage:
+inventory generatorの使用例:
 
 ```ShellSession
 cp -r inventory/sample inventory/mycluster
@@ -22,46 +17,42 @@ declare -a IPS=(10.10.1.3 10.10.1.4 10.10.1.5)
 CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 ```
 
-Then use `inventory/mycluster/hosts.yml` as inventory file.
+次に `inventory/mycluster/hosts.yml` をinventoryファイルとして使用します。
 
-## Starting custom deployment
+## カスタムデプロイを開始する
 
-Once you have an inventory, you may want to customize deployment data vars
-and start the deployment:
+inventoryができたら、デプロイのデータ変数をカスタマイズしてデプロイを開始します:
 
-**IMPORTANT**: Edit my\_inventory/groups\_vars/\*.yaml to override data vars:
+**重要**: my\_inventory/groups\_vars/\*.yamlを編集してデータ変数を上書きします:
 
 ```ShellSession
 ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml -b -v \
   --private-key=~/.ssh/private_key
 ```
 
-See more details in the [ansible guide](docs/ansible.md).
+詳細は[ansibleガイド](docs/ansible.md)を参照してください。
 
-### Adding nodes
+### ノードの追加
 
-You may want to add worker, master or etcd nodes to your existing cluster. This can be done by re-running the `cluster.yml` playbook, or you can target the bare minimum needed to get kubelet installed on the worker and talking to your masters. This is especially helpful when doing something like autoscaling your clusters.
+既存のクラスタにワーカー、マスタ、etcd ノードを追加したいと思うかもしれません。これは `cluster.yml` playbookを再実行することで行うことができますし、ワーカーにkubeletをインストールしてマスターと対話するために必要な最低限のものをターゲットにすることもできます。これは、クラスタをオートスケーリングするようなことをするときに特に便利です。
 
-- Add the new worker node to your inventory in the appropriate group (or utilize a [dynamic inventory](https://docs.ansible.com/ansible/intro_dynamic_inventory.html)).
-- Run the ansible-playbook command, substituting `cluster.yml` for `scale.yml`:
+- 新しいワーカーノードを適切なグループのインベントリに追加します(または[dynamic inventory](https://docs.ansible.com/ansible/intro_dynamic_inventory.html)を利用します)。
+- `cluster.yml` の代わりに `scale.yml` をansible-playbookコマンドで実行します。
 
 ```ShellSession
 ansible-playbook -i inventory/mycluster/hosts.yml scale.yml -b -v \
   --private-key=~/.ssh/private_key
 ```
 
-### Remove nodes
+### ノードの削除
 
-You may want to remove **master**, **worker**, or **etcd** nodes from your
-existing cluster. This can be done by re-running the `remove-node.yml`
-playbook. First, all specified nodes will be drained, then stop some
-kubernetes services and delete some certificates,
-and finally execute the kubectl command to delete these nodes.
-This can be combined with the add node function. This is generally helpful
-when doing something like autoscaling your clusters. Of course, if a node
-is not working, you can remove the node and install it again.
+既存のクラスタから**マスター**、**ワーカー**、または**etcd**ノードを削除したいと思うかもしれません。
+これは `remove-node.yml` playbookを再実行することで行うことができます。
+まず、指定されたすべてのノードがドレインされ、その後、一部のkubernetesのサービスと証明書を削除します。そして最後にkubectlコマンドを実行してこれらのノードを削除します。
+これはノードの追加機能と組み合わせることができます。これは一般的にクラスタのオートスケーリングのようなことをするときに便利です。
+もちろん、ノードが動作しない場合は、ノードを削除して再インストールすることができます。
 
-Use `--extra-vars "node=<nodename>,<nodename2>"` to select the node(s) you want to delete.
+削除したいノードを選択するには `--extra-vars "node=<nodename>,<nodename2>"` を使用します。
 
 ```ShellSession
 ansible-playbook -i inventory/mycluster/hosts.yml remove-node.yml -b -v \
@@ -69,69 +60,62 @@ ansible-playbook -i inventory/mycluster/hosts.yml remove-node.yml -b -v \
 --extra-vars "node=nodename,nodename2"
 ```
 
-If a node is completely unreachable by ssh, add `--extra-vars reset_nodes=no`
-to skip the node reset step. If one node is unavailable, but others you wish
-to remove are able to connect via SSH, you could set reset_nodes=no as a host
-var in inventory.
+もしノードにsshで完全にアクセスできない場合は `--extra-vars reset_nodes=no` を追加して、ノードのリセットステップをスキップします。
+1つのノードが利用できなくても、他のノードがSSHで接続できる場合は、インベントリのホスト変数として reset_nodes=no を設定することができます。
 
-## Connecting to Kubernetes
+## Kubernetesに接続する
 
-By default, Kubespray configures kube-master hosts with insecure access to
-kube-apiserver via port 8080. A kubeconfig file is not necessary in this case,
-because kubectl will use <http://localhost:8080> to connect. The kubeconfig files
-generated will point to localhost (on kube-masters) and kube-node hosts will
-connect either to a localhost nginx proxy or to a loadbalancer if configured.
-More details on this process are in the [HA guide](docs/ha-mode.md).
+デフォルトでは、kubesprayは8080ポートを介してkube-apiserverに安全でないアクセスをしてkube-masterホストを設定しています。
+この場合、kubectl は <http://localhost:8080> を使って接続するので、kubeconfig ファイルは必要ありません。
+生成されたkubeconfigファイルは(kub-master上の)localhostを指し、kube-nodeホストはlocalhostのnginxプロキシか、設定されていればロードバランサに接続します。
+この処理の詳細は [HA ガイド](docs/ha-mode.md) を参照してください。
 
-Kubespray permits connecting to the cluster remotely on any IP of any
-kube-master host on port 6443 by default. However, this requires
-authentication. One can get a kubeconfig from kube-master hosts
-(see [below](#accessing-kubernetes-api)) or connect with a [username and password](vars.md#user-accounts).
+Kubesprayはデフォルトでは6443ポートに対する任意のkube-masterホストの任意のIPでのクラスタへのリモート接続を許可しています。しかし、これには認証が必要です。
+kube-masterホストからkubeconfigを取得するか(下記を参照してください](#accessing-kubernetes-api))、または[ユーザ名とパスワード]を指定して接続することができます(vars.md#user-accounts)。
 
-For more information on kubeconfig and accessing a Kubernetes cluster, refer to
-the Kubernetes [documentation](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/).
+kubeconfigやKubernetesクラスタへのアクセスについては、Kubernetes[ドキュメント](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)を参照してください。
 
-## Accessing Kubernetes Dashboard
+## Kubernetes Dashboardへのアクセス
 
-Supported version is kubernetes-dashboard v2.0.x :
+サポートされるバージョンはkubernetes-dashboard v2.0.x です。
 
-- Login options are : token/kubeconfig by default, basic can be enabled with `kube_basic_auth: true` inventory variable - not recommended because this requires ABAC api-server which is not tested by kubespray team
-- Deployed by default in "kube-system" namespace, can be overridden with `dashboard_namespace: kubernetes-dashboard` in inventory,
-- Only serves over https
+- ログインオプションは以下の通りです: token/kubeconfig by default, basic can be enabled with `kube_basic_auth: true` inventory variable - not recommended because this requires ABAC api-server which is not tested by kubespray team
+- デフォルトでは "kube-system" 名前空間にデプロイされていますが、インベントリの `dashboard_namespace: kubernetes-dashboard` でオーバーライドすることができます。
+- httpsでのみ提供しています。
 
-Access is described in [dashboard docs](https://github.com/kubernetes/dashboard/tree/master/docs/user/accessing-dashboard). With kubespray's default deployment in kube-system namespace, instead of kuberntes-dashboard :
+アクセス方法は[ダッシュボードのドキュメント](https://github.com/kubernetes/dashboard/tree/master/docs/user/accessing-dashboard)に記載されています。
+KubesprayのデフォルトのDeploymentはkuberntes-dashboardではなく、kube-system名前空間にあります。
 
-- Proxy URL is <http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#/login>
-- kubectl commands must be run with "-n kube-system"
+- プロキシURLは <http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#/login> です。
+- kubectlコマンドには必ず"-n kube-system"オプションが必要です。
 
-Accessing through Ingress is highly recommended. For proxy access, please note that proxy must listen to [localhost](https://github.com/kubernetes/dashboard/issues/692#issuecomment-220492484) (`proxy  --address="x.x.x.x"` will not work)
+Ingress経由でのアクセスを強くお勧めします。プロキシでアクセスするには、プロキシが [localhost](https://github.com/kubernetes/dashboard/issues/692#issuecomment-220492484) をlistenしなければならないことに注意してください (`proxy --address="x.x.x.x.x"` は動作しません)。
 
-For token authentication, guide to create Service Account is provided in [dashboard sample user](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md) doc. Still take care of default namespace.
+トークン認証については、[ダッシュボードサンプルユーザ](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)のドキュメントにサービスアカウントの作成方法が記載されています。なお、デフォルトの名前空間には注意してください。
 
-Access can also by achieved via ssh tunnel on a master :
+アクセスはまた、マスター上のsshトンネルで行うこともできます。
 
 ```bash
-# localhost:8081 will be sent to master-1's own localhost:8081
+# localhost:8081 は master-1 の localhost:8081 に送信されます。
 ssh -L8001:localhost:8001 user@master-1
 sudo -i
 kubectl proxy
 ```
 
-## Accessing Kubernetes API
+## Kubernetes APIへのアクセス
 
-The main client of Kubernetes is `kubectl`. It is installed on each kube-master
-host and can optionally be configured on your ansible host by setting
-`kubectl_localhost: true` and `kubeconfig_localhost: true` in the configuration:
+Kubernetesのメインクライアントは `kubectl` です。
+これは各kube-masterホストにインストールされており、オプションでansibleホストの設定の `kubectl_localhost: true` と `kubeconfig_localhost: true` で設定することができます。
 
-- If `kubectl_localhost` enabled, `kubectl` will download onto `/usr/local/bin/` and setup with bash completion. A helper script `inventory/mycluster/artifacts/kubectl.sh` also created for setup with below `admin.conf`.
-- If `kubeconfig_localhost` enabled `admin.conf` will appear in the `inventory/mycluster/artifacts/` directory after deployment.
-- The location where these files are downloaded to can be configured via the `artifacts_dir` variable.
+- `kubectl_localhost` を有効にすると、`kubectl` が `/usr/local/bin/` にダウンロードされbash completionがセットアップされます。ヘルパースクリプト`inventory/mycluster/artifacts/kubectl.sh`もまた以下の`admin.conf`をセットアップするために作られます。
+- `kubeconfig_localhost` を有効にすると、デプロイ後に `admin.conf` が `inventory/mycluster/artifacts/` ディレクトリに表示されます。
+- これらのファイルをダウンロードする場所は `artifacts_dir` 変数で設定できます。
 
-You can see a list of nodes by running the following commands:
+以下のコマンドを実行することで、ノードの一覧を見ることができます:
 
 ```ShellSession
 cd inventory/mycluster/artifacts
 ./kubectl.sh get nodes
 ```
 
-If desired, copy admin.conf to ~/.kube/config.
+必要に応じて admin.conf を ~/.kube/config にコピーしてください。
