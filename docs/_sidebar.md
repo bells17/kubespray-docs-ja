@@ -1,6 +1,6 @@
 * [Readme](/)
-* [Comparisons](/docs/comparisons.md)
-* [Getting started](/docs/getting-started.md)
+* [比較](/docs/comparisons.md)
+* [はじめに](/docs/getting-started.md)
 * [Ansible](docs/ansible.md)
 * [Variables](/docs/vars.md)
 * Operations
