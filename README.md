@@ -6,7 +6,7 @@
 
 ---
 
-# 本番環境に対応したKubernetesクラスタの導入
+# 本番環境に対応したKubernetesクラスタの構築ツール
 
 ![Kubernetes Logo](https://raw.githubusercontent.com/kubernetes-sigs/kubespray/master/docs/img/kubernetes-logo.png)
 
