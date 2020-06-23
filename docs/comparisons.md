@@ -2,26 +2,16 @@
 
 ## Kubespray vs [Kops](https://github.com/kubernetes/kops)
 
-Kubespray runs on bare metal and most clouds, using Ansible as its substrate for
-provisioning and orchestration. Kops performs the provisioning and orchestration
-itself, and as such is less flexible in deployment platforms. For people with
-familiarity with Ansible, existing Ansible deployments or the desire to run a
-Kubernetes cluster across multiple platforms, Kubespray is a good choice. Kops,
-however, is more tightly integrated with the unique features of the clouds it
-supports so it could be a better choice if you know that you will only be using
-one platform for the foreseeable future.
+Kubesprayはベアメタルとほとんどのクラウド上で動作し、Ansibleを基板にしてプロビジョニングとオーケストレーションを行います。
+Kopsはプロビジョニングとオーケストレーション自体を実行するため、デプロイメントプラットフォームの柔軟性が低くなります。Ansibleに慣れている人、既存のAnsibleデプロイメント、または複数のプラットフォームでKubernetesクラスタを実行したいと考えている人には、Kubesprayは良い選択です。
+しかし、Kopsは、サポートしているクラウドのユニークな機能とより緊密に統合されているので、当面は1つのプラットフォームしか使用しないことがわかっている場合には、より良い選択となるかもしれません。
 
 ## Kubespray vs [Kubeadm](https://github.com/kubernetes/kubeadm)
 
-Kubeadm provides domain Knowledge of Kubernetes clusters' life cycle
-management, including self-hosted layouts, dynamic discovery services and so
-on. Had it belonged to the new [operators world](https://coreos.com/blog/introducing-operators.html),
-it may have been named a "Kubernetes cluster operator". Kubespray however,
-does generic configuration management tasks from the "OS operators" ansible
-world, plus some initial K8s clustering (with networking plugins included) and
-control plane bootstrapping.
+Kubeadmは、自己ホスト型レイアウトやダイナミックディスカバリーサービスなど、Kubernetesクラスタのライフサイクル管理に関するドメイン知識を提供します。
+新しい[オペレーターの世界]（https://coreos.com/blog/introducing-operators.html）に属していた場合、「Kubernetes cluster operator」と呼ばれた可能性があります。
+しかしKubesprayは「OSオペレーター」のAnsibleな世界からの一般的な構成管理タスクに加えて、いくつかのk8sクラスターの初期化処理（ネットワークプラグインを含む）とコントロールプレーンブートストラップを行います。
 
-Kubespray supports `kubeadm` for cluster creation since v2.3
-(and deprecated non-kubeadm deployment starting from v2.8)
-in order to consume life cycle management domain knowledge from it
-and offload generic OS configuration things from it, which hopefully benefits both sides.
+Kubesprayは、v2.3以降のクラスター作成に `kubeadm` を利用します(v2.8からは非推奨のnon-kubeadmデプロイもサポートしています)。
+kubeadmを利用することにより、ライフサイクル管理に関するドメイン知識をkubeadmに委託し、汎用OS構成の負荷を軽減します。
+これにより、双方に利益がもたらされると期待しています。
