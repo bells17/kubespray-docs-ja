@@ -10,14 +10,14 @@
 
 ![Kubernetes Logo](https://raw.githubusercontent.com/kubernetes-sigs/kubespray/master/docs/img/kubernetes-logo.png)
 
-If you have questions, check the documentation at [kubespray.io](https://kubespray.io) and join us on the [kubernetes slack](https://kubernetes.slack.com), channel **\#kubespray**.
-You can get your invite [here](http://slack.k8s.io/)
+もし質問があれば[bells17.io/kubespray-docs-ja/](https://bells17.io/kubespray-docs-ja/)をチェックして、[kubernetes slack](https://kubernetes.slack.com)の **\#kubespray**チャンネルに参加してください。
+[ここ](http://slack.k8s.io/)から招待を受け取れます
 
-- Can be deployed on **AWS, GCE, Azure, OpenStack, vSphere, Packet (bare metal), Oracle Cloud Infrastructure (Experimental), or Baremetal**
-- **Highly available** cluster
-- **Composable** (Choice of the network plugin for instance)
-- Supports most popular **Linux distributions**
-- **Continuous integration tests**
+- **GCE、Azure、OpenStack、AWS、vSphere、Packet(ベアメタル)、Oracle Cloud Infrastructure(実験段階)またはベアメタル**上にKubernetesクラスターを構築
+- **高可用性**クラスターを構築
+- **Kubernetesクラスターの構成変更**(ネットワークプラグインを選択可能など)
+- 最も人気な**Linuxディストリビューション**をサポート
+- **継続的インテグレーションテストs**
 
 ## Quick Start
 
