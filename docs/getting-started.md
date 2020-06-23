@@ -68,7 +68,7 @@ ansible-playbook -i inventory/mycluster/hosts.yml remove-node.yml -b -v \
 デフォルトでは、kubesprayは8080ポートを介してkube-apiserverに安全でないアクセスをしてkube-masterホストを設定しています。
 この場合、kubectl は <http://localhost:8080> を使って接続するので、kubeconfig ファイルは必要ありません。
 生成されたkubeconfigファイルは(kub-master上の)localhostを指し、kube-nodeホストはlocalhostのnginxプロキシか、設定されていればロードバランサに接続します。
-この処理の詳細は [HA ガイド](docs/ha-mode.md) を参照してください。
+この処理の詳細は [HAガイド](docs/ha-mode.md) を参照してください。
 
 Kubesprayはデフォルトでは6443ポートに対する任意のkube-masterホストの任意のIPでのクラスタへのリモート接続を許可しています。しかし、これには認証が必要です。
 kube-masterホストからkubeconfigを取得するか(下記を参照してください](#accessing-kubernetes-api))、または[ユーザ名とパスワード]を指定して接続することができます(vars.md#user-accounts)。
