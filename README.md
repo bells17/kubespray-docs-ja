@@ -146,7 +146,7 @@ Note: Upstart/SysV initベースのOSタイプはサポートしてません。
 注意: 検証済みの[dockerのバージョン](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.16.md)のリストが1.13.1, 17.03, 17.06, 17.09, 18.06, 18.09に更新されました。kubeadmはDocker 18.09.0以降を正しく認識するようになりましたが、18.06をデフォルトのサポートバージョンとして扱います。kubeletはdockerの非標準バージョンナンバリングで壊れてしまうことがありました(もうセマンティックバージョニングを使用していません)。
 自動更新がクラスタを壊さないようにするには、yum versionlock pluginや apt pin などを利用してください。
 
-## [要件](#requirements)
+## 要件 {#requirements}
 
 - **Kubernetesの最低バージョンはv1.15です**
 - **Ansible v2.9+とJinja 2.11+、python-netaddrがAnsibleコマンドを実行するサーバーにインストールされている必要があります**
