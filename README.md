@@ -202,19 +202,19 @@ Note: Upstart/SysV initベースのOSタイプはサポートしてません。
 代わりに組み込みのクラウドプロバイダのネットワークを利用するオプションもあります。
 [Network checker](docs/netcheck.md)も参照してください。
 
-## Community docs and resources
+## コミュニティドキュメントとリソース
 
 - [kubernetes.io/docs/setup/production-environment/tools/kubespray/](https://kubernetes.io/docs/setup/production-environment/tools/kubespray/)
 - [kubespray, monitoring and logging](https://github.com/gregbkr/kubernetes-kargo-logging-monitoring) by @gregbkr
 - [Deploy Kubernetes w/ Ansible & Terraform](https://rsmitty.github.io/Terraform-Ansible-Kubernetes/) by @rsmitty
 - [Deploy a Kubernetes Cluster with Kubespray (video)](https://www.youtube.com/watch?v=CJ5G4GpqDy0)
 
-## Tools and projects on top of Kubespray
+## Kubespray上のツールとプロジェクト
 
 - [Digital Rebar Provision](https://github.com/digitalrebar/provision/blob/v4/doc/integrations/ansible.rst)
 - [Terraform Contrib](https://github.com/kubernetes-sigs/kubespray/tree/master/contrib/terraform)
 
-## CI Tests
+## CIテスト
 
 [![Build graphs](https://gitlab.com/kargo-ci/kubernetes-sigs-kubespray/badges/master/build.svg)](https://gitlab.com/kargo-ci/kubernetes-sigs-kubespray/pipelines)
 
