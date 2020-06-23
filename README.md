@@ -19,94 +19,93 @@
 - 最も人気な**Linuxディストリビューション**をサポート
 - **継続的インテグレーションテストs**
 
-## Quick Start
+## クイックスタート
 
-To deploy the cluster you can use :
+クラスタをデプロイするには
 
 ### Ansible
 
-#### Usage
+#### 使い方
 
 ```ShellSession
-# Install dependencies from ``requirements.txt``
+# 依存パッケージを ``requirements.txt`` からインストール
 sudo pip3 install -r requirements.txt
 
-# Copy ``inventory/sample`` as ``inventory/mycluster``
+# ``inventory/sample`` を ``inventory/mycluster`` にコピー
 cp -rfp inventory/sample inventory/mycluster
 
-# Update Ansible inventory file with inventory builder
+# inventoryビルダーを使ってAnsible inventoryファイルをアップデート
 declare -a IPS=(10.10.1.3 10.10.1.4 10.10.1.5)
 CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 
-# Review and change parameters under ``inventory/mycluster/group_vars``
+# ``inventory/mycluster/group_vars`` 内のパラメータの見直しと変更
 cat inventory/mycluster/group_vars/all/all.yml
 cat inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 
-# Deploy Kubespray with Ansible Playbook - run the playbook as root
-# The option `--become` is required, as for example writing SSL keys in /etc/,
-# installing packages and interacting with various systemd daemons.
-# Without --become the playbook will fail to run!
+# Ansible Playbookを使ってKubesprayをデプロイする - rootでplaybookを実行する
+# 例えば /etc/ にSSL鍵を書いたり、パッケージをインストールしたり、様々なsystemdデーモンと対話したりするためには、`--become`オプションが必要です。
+# --become なしではプレイブックの実行に失敗します!
 ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root cluster.yml
 ```
 
-Note: When Ansible is already installed via system packages on the control machine, other python packages installed via `sudo pip install -r requirements.txt` will go to a different directory tree (e.g. `/usr/local/lib/python2.7/dist-packages` on Ubuntu) from Ansible's (e.g. `/usr/lib/python2.7/dist-packages/ansible` still on Ubuntu).
-As a consequence, `ansible-playbook` command will fail with:
+注意: Ansible が既にコントロールマシンにシステムパッケージを介してインストールされている場合、 `sudo pip install -r requirements.txt` でインストールされた他の python パッケージは Ansible とは異なるディレクトリツリー(例: Ubuntuの `/usr/local/lib/python2.7/dist-packages`)に移動します(例: Ubuntuの `/usr/lib/python2.7/dist-packages/ansible` のまま)。
+その場合`ansible-playbook` コマンドで以下のエラーが出て失敗します。
 
 ```raw
 ERROR! no action detected in task. This often indicates a misspelled module name, or incorrect module path.
 ```
 
-probably pointing on a task depending on a module present in requirements.txt (i.e. "unseal vault").
+おそらくrequirements.txtにあるモジュール(例："unseal vault")に依存するタスクを指していると思われます。
 
-One way of solving this would be to uninstall the Ansible package and then, to install it via pip but it is not always possible.
-A workaround consists of setting `ANSIBLE_LIBRARY` and `ANSIBLE_MODULE_UTILS` environment variables respectively to the `ansible/modules` and `ansible/module_utils` subdirectories of pip packages installation location, which can be found in the Location field of the output of `pip show [package]` before executing `ansible-playbook`.
+これを解決する方法としては、Ansible パッケージをアンインストールしてから pip 経由でインストールすることが考えられますが、必ずしも可能とは限りません。
+回避策としては、環境変数 `ANSIBLE_LIBRARY` と `ANSIBLE_MODULE_UTILS` をそれぞれ pip パッケージのインストール場所の `ansible/modules` と `ansible/module_utils` サブディレクトリに設定することです。これは `ansible-playbook` を実行する前に `pip show [package]` の出力の Location フィールドで見つけることができます。
 
 ### Vagrant
 
-For Vagrant we need to install python dependencies for provisioning tasks.
-Check if Python and pip are installed:
+Vagrantの場合は、プロビジョニング作業のためにpythonの依存関係をインストールする必要があります。
+Pythonとpipがインストールされているか確認します:
 
 ```ShellSession
 python -V && pip -V
 ```
 
-If this returns the version of the software, you're good to go. If not, download and install Python from here <https://www.python.org/downloads/source/>
-Install the necessary requirements
+これでバージョンが返ってくれば問題ありません。そうでない場合は、ここからPythonをダウンロードしてインストールしてください <https://www.python.org/downloads/source/>
+必要な要件をインストールする
 
 ```ShellSession
 sudo pip install -r requirements.txt
 vagrant up
 ```
 
-## Documents
+## ドキュメント
 
-- [Requirements](#requirements)
+- [要件](#requirements)
 - [Kubespray vs ...](docs/comparisons.md)
-- [Getting started](docs/getting-started.md)
-- [Ansible inventory and tags](docs/ansible.md)
-- [Integration with existing ansible repo](docs/integration.md)
-- [Deployment data variables](docs/vars.md)
-- [DNS stack](docs/dns-stack.md)
-- [HA mode](docs/ha-mode.md)
-- [Network plugins](#network-plugins)
-- [Vagrant install](docs/vagrant.md)
-- [CoreOS bootstrap](docs/coreos.md)
-- [Fedora CoreOS bootstrap](docs/fcos.md)
-- [Debian Jessie setup](docs/debian.md)
-- [openSUSE setup](docs/opensuse.md)
-- [Downloaded artifacts](docs/downloads.md)
-- [Cloud providers](docs/cloud.md)
+- [はじめに](docs/getting-started.md)
+- [Ansible inventoryとタグ](docs/ansible.md)
+- [既存のAnsibleリポジトリと統合する](docs/integration.md)
+- [データ変数のデプロイ](docs/vars.md)
+- [DNSスタック](docs/dns-stack.md)
+- [HAモード](docs/ha-mode.md)
+- [ネットワークプラグイン](#network-plugins)
+- [Vagrantのインストール](docs/vagrant.md)
+- [CoreOSブートストラップ](docs/coreos.md)
+- [Fedora CoreOSブートストラップ](docs/fcos.md)
+- [Debian Jessieセットアップ](docs/debian.md)
+- [openSUSEセットアップ](docs/opensuse.md)
+- [ダウンロードした成果物](docs/downloads.md)
+- [クラウドプロバイダー](docs/cloud.md)
 - [OpenStack](docs/openstack.md)
 - [AWS](docs/aws.md)
 - [Azure](docs/azure.md)
 - [vSphere](docs/vsphere.md)
 - [Packet Host](docs/packet.md)
-- [Large deployments](docs/large-deployments.md)
-- [Adding/replacing a node](docs/nodes.md)
-- [Upgrades basics](docs/upgrades.md)
-- [Roadmap](docs/roadmap.md)
+- [大規模デプロイ](docs/large-deployments.md)
+- [ノードの追加/入れ替え](docs/nodes.md)
+- [アップグレードの基本](docs/upgrades.md)
+- [ロードマップ](docs/roadmap.md)
 
-## Supported Linux Distributions
+## サポートされるLinuxディストリビューション
 
 - **Container Linux by CoreOS**
 - **Debian** Buster, Jessie, Stretch, Wheezy
@@ -117,7 +116,7 @@ vagrant up
 - **openSUSE** Leap 42.3/Tumbleweed
 - **Oracle Linux** 7
 
-Note: Upstart/SysV init based OS types are not supported.
+Note: Upstart/SysV initベースのOSタイプはサポートしてません。
 
 ## Supported Components
 
@@ -126,7 +125,7 @@ Note: Upstart/SysV init based OS types are not supported.
   - [etcd](https://github.com/coreos/etcd) v3.3.12
   - [docker](https://www.docker.com/) v18.06 (see note)
   - [containerd](https://containerd.io/) v1.2.13
-  - [cri-o](http://cri-o.io/) v1.17 (experimental: see [CRI-O Note](docs/cri-o.md). Only on fedora, ubuntu and centos based OS)
+  - [cri-o](http://cri-o.io/) v1.17 (experimental: see [CRI-O Note](docs/cri-o.md). fedora, ubuntu and centosベースのOSのみ)
 - Network Plugin
   - [cni-plugins](https://github.com/containernetworking/plugins) v0.8.6
   - [calico](https://github.com/projectcalico/calico) v3.13.2
@@ -144,32 +143,32 @@ Note: Upstart/SysV init based OS types are not supported.
   - [coredns](https://github.com/coredns/coredns) v1.6.5
   - [ingress-nginx](https://github.com/kubernetes/ingress-nginx) v0.30.0
 
-Note: The list of validated [docker versions](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.16.md) was updated to 1.13.1, 17.03, 17.06, 17.09, 18.06, 18.09. kubeadm now properly recognizes Docker 18.09.0 and newer, but still treats 18.06 as the default supported version. The kubelet might break on docker's non-standard version numbering (it no longer uses semantic versioning). To ensure auto-updates don't break your cluster look into e.g. yum versionlock plugin or apt pin).
+注意: 検証済みの[dockerのバージョン](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.16.md)のリストが1.13.1, 17.03, 17.06, 17.09, 18.06, 18.09に更新されました。kubeadmはDocker 18.09.0以降を正しく認識するようになりましたが、18.06をデフォルトのサポートバージョンとして扱います。kubeletはdockerの非標準バージョンナンバリングで壊れてしまうことがありました(もうセマンティックバージョニングを使用していません)。
+自動更新がクラスタを壊さないようにするには、yum versionlock pluginや apt pin などを利用してください。
 
-## Requirements
+## 要件
 
-- **Minimum required version of Kubernetes is v1.15**
-- **Ansible v2.9+, Jinja 2.11+ and python-netaddr is installed on the machine that will run Ansible commands**
-- The target servers must have **access to the Internet** in order to pull docker images. Otherwise, additional configuration is required (See [Offline Environment](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/downloads.md#offline-environment))
-- The target servers are configured to allow **IPv4 forwarding**.
-- **Your ssh key must be copied** to all the servers part of your inventory.
-- The **firewalls are not managed**, you'll need to implement your own rules the way you used to.
-    in order to avoid any issue during deployment you should disable your firewall.
-- If kubespray is ran from non-root user account, correct privilege escalation method
-    should be configured in the target servers. Then the `ansible_become` flag
-    or command parameters `--become or -b` should be specified.
+- **Kubernetesの最低バージョンはv1.15です**
+- **Ansible v2.9+とJinja 2.11+、python-netaddrがAnsibleコマンドを実行するサーバーにインストールされている必要があります**
+- 対象のサーバーはdockerイメージをpullするために**インターネットにアクセスできる**必要があります。それ以外の場合は追加の設定が必要です([オフライン環境を参照](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/offline-environment.md))
+- 対象のサーバーには**IPv4フォワーディング**の許可設定が必要です
+- **SSHキー**がインベントリのすべてのサーバにコピーされている必要があります
+- **ファイアウォールは管理されていない**ので、自分自身で管理する必要があります。
+    デプロイ時の問題を避けるためには、ファイアウォールを無効にする必要があります
+- kubesprayをroot以外のユーザアカウントから実行する場合は、対象のサーバで正しい権限昇格方法を設定しておく必要があります。
+    その際 `ansible_become` フラグまたはコマンドパラメータ `--become` または `-b` を指定する必要があります
 
-Hardware:
-These limits are safe guarded by Kubespray. Actual requirements for your workload can differ. For a sizing guide go to the [Building Large Clusters](https://kubernetes.io/docs/setup/cluster-large/#size-of-master-and-master-components) guide.
+ハードウェア:
+これらの制限はKubesprayによって安全に守られています。実際に必要とされる作業量は異なる場合があります。サイジングガイドについては[大規模クラスターを構築する](https://kubernetes.io/docs/setup/cluster-large/#size-of-master-and-master-components)を参照してください。
 
 - Master
   - Memory: 1500 MB
 - Node
   - Memory: 1024 MB
 
-## Network Plugins
+## ネットワークプラグイン
 
-You can choose between 10 network plugins. (default: `calico`, except Vagrant uses `flannel`)
+10個のネットワークプラグインを選ぶことができます(デフォルト: `calico`、Vagrantは `flannel` を使用しています)
 
 - [flannel](docs/flannel.md): gre/vxlan (layer 2) networking.
 
