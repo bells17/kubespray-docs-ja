@@ -5,7 +5,7 @@
 Ansibleのインベントリは3つの形式で保存できます。YAML、JSON、INI的なものがあります。[ここ]((https://github.com/kubernetes-sigs/kubespray/blob/master/inventory/sample/inventory.ini))にインベントリの例があります。
 
 Ansible inventoryを作成・修正するには、[inventory generator](https://github.com/kubernetes-sigs/kubespray/blob/master/contrib/inventory_builder/inventory.py) を使用します。
-現在のところ、機能が制限されており、基本的なKubesprayクラスタインベントリの設定にしか使用されていませんが、大規模クラスタ用のインベントリファイルの作成もサポートしています。
+現在のところ、機能が制限されており、基本的なKubesprayクラスターインベントリの設定にしか使用されていませんが、大規模クラスター用のインベントリファイルの作成もサポートしています。
 これはサイズが特定のしきい値を超えた場合に、ETCDおよびKubernetesマスターのroleをノードのroleからの分離することができるというものです。
 詳細については `python3 contrib/inventory_builder/inventory.py help` を実行してください。
 
@@ -34,7 +34,7 @@ ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml -b -v \
 
 ### ノードの追加
 
-既存のクラスタにワーカー、マスタ、etcd ノードを追加したいと思うかもしれません。これは `cluster.yml` playbookを再実行することで行うことができますし、ワーカーにkubeletをインストールしてマスターと対話するために必要な最低限のものをターゲットにすることもできます。これは、クラスタをオートスケーリングするようなことをするときに特に便利です。
+既存のクラスターにワーカー、マスタ、etcd ノードを追加したいと思うかもしれません。これは `cluster.yml` playbookを再実行することで行うことができますし、ワーカーにkubeletをインストールしてマスターと対話するために必要な最低限のものをターゲットにすることもできます。これは、クラスターをオートスケーリングするようなことをするときに特に便利です。
 
 - 新しいワーカーノードを適切なグループのインベントリに追加します(または[dynamic inventory](https://docs.ansible.com/ansible/intro_dynamic_inventory.html)を利用します)。
 - `cluster.yml` の代わりに `scale.yml` をansible-playbookコマンドで実行します。
@@ -46,10 +46,10 @@ ansible-playbook -i inventory/mycluster/hosts.yml scale.yml -b -v \
 
 ### ノードの削除
 
-既存のクラスタから**マスター**、**ワーカー**、または**etcd**ノードを削除したいと思うかもしれません。
+既存のクラスターから**マスター**、**ワーカー**、または**etcd**ノードを削除したいと思うかもしれません。
 これは `remove-node.yml` playbookを再実行することで行うことができます。
 まず、指定されたすべてのノードがドレインされ、その後、一部のkubernetesのサービスと証明書を削除します。そして最後にkubectlコマンドを実行してこれらのノードを削除します。
-これはノードの追加機能と組み合わせることができます。これは一般的にクラスタのオートスケーリングのようなことをするときに便利です。
+これはノードの追加機能と組み合わせることができます。これは一般的にクラスターのオートスケーリングのようなことをするときに便利です。
 もちろん、ノードが動作しない場合は、ノードを削除して再インストールすることができます。
 
 削除したいノードを選択するには `--extra-vars "node=<nodename>,<nodename2>"` を使用します。
@@ -70,10 +70,10 @@ ansible-playbook -i inventory/mycluster/hosts.yml remove-node.yml -b -v \
 生成されたkubeconfigファイルは(kub-master上の)localhostを指し、kube-nodeホストはlocalhostのnginxプロキシか、設定されていればロードバランサに接続します。
 この処理の詳細は [HAガイド](docs/ha-mode.md) を参照してください。
 
-Kubesprayはデフォルトでは6443ポートに対する任意のkube-masterホストの任意のIPでのクラスタへのリモート接続を許可しています。しかし、これには認証が必要です。
+Kubesprayはデフォルトでは6443ポートに対する任意のkube-masterホストの任意のIPでのクラスターへのリモート接続を許可しています。しかし、これには認証が必要です。
 kube-masterホストからkubeconfigを取得するか(下記を参照してください](#accessing-kubernetes-api))、または[ユーザ名とパスワード]を指定して接続することができます(vars.md#user-accounts)。
 
-kubeconfigやKubernetesクラスタへのアクセスについては、Kubernetes[ドキュメント](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)を参照してください。
+kubeconfigやKubernetesクラスターへのアクセスについては、Kubernetes[ドキュメント](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)を参照してください。
 
 ## Kubernetes Dashboardへのアクセス
 

@@ -7,7 +7,7 @@
 
 ---
 
-# 本番環境に対応したKubernetesクラスタの構築ツール
+# 本番環境に対応したKubernetesクラスターの構築ツール
 
 ![Kubernetes Logo](https://raw.githubusercontent.com/kubernetes-sigs/kubespray/master/docs/img/kubernetes-logo.png)
 
@@ -22,7 +22,7 @@
 
 ## クイックスタート
 
-クラスタをデプロイするには
+クラスターをデプロイするには
 
 ### Ansible
 
@@ -145,7 +145,7 @@ Note: Upstart/SysV initベースのOSタイプはサポートしてません。
   - [ingress-nginx](https://github.com/kubernetes/ingress-nginx) v0.30.0
 
 注意: 検証済みの[dockerのバージョン](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.16.md)のリストが1.13.1, 17.03, 17.06, 17.09, 18.06, 18.09に更新されました。kubeadmはDocker 18.09.0以降を正しく認識するようになりましたが、18.06をデフォルトのサポートバージョンとして扱います。kubeletはdockerの非標準バージョンナンバリングで壊れてしまうことがありました(もうセマンティックバージョニングを使用していません)。
-自動更新がクラスタを壊さないようにするには、yum versionlock pluginや apt pin などを利用してください。
+自動更新がクラスターを壊さないようにするには、yum versionlock pluginや apt pin などを利用してください。
 
 ## 要件
 

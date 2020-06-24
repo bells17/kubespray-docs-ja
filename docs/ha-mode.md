@@ -10,7 +10,7 @@
 ## Etcd
 
 etcdクライアント(kube-api-master)にはすべてのetcdピアのリストが設定されています。
-etcdクラスタに複数のインスタンスがある場合は、すでにHAで構成されています。
+etcdクラスターに複数のインスタンスがある場合は、すでにHAで構成されています。
 
 ## Kube-apiserver
 
@@ -67,12 +67,12 @@ loadbalancer_apiserver:
 HAProxyサービスはHAであるべきであり、VIP管理が必要であることに注意してください。
 
 内部LBと外部設定された(Kubesprayによって構成したのではない)LBを同時に使用する場合には特別なケースがあります。
-クラスタはそのような外部LBを認識していないことに注意してください。
+クラスターはそのような外部LBを認識していないことに注意してください。
 
   注意: 外部からアクセスされたAPIエンドポイントのTLS/SSL終端は、Kubespray によってカバーされるケースの対象外となります。
   外部LBがTLS/SSL終端機能を提供していることを確認してください。
   あるいは、`supplementary_addresses_in_ssl_keys` リストに外部からの負荷分散されたVIPを指定することもできます。
-  指定することでkubesprayは生成されたクラスタ証明書にもそれらを追加します。
+  指定することでkubesprayは生成されたクラスター証明書にもそれらを追加します。
 
 この特定のケースは別として、`loadbalancer_apiserver` は `loadbalancer_apiserver_localhost` とは同時に設定することはできないと考えられます。
 

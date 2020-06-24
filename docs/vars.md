@@ -42,19 +42,19 @@ Ansible が自動的に収集したfactは[ここ](https://docs.ansible.com/ansi
 ## Cluster variables
 
 Kubernetesがデプロイされるためには、いくつかのパラメータが必要です。
-これらは以下のデフォルトのクラスタパラメータです:
+これらは以下のデフォルトのクラスターパラメータです:
 
-* *cluster_name* - クラスタ名 (デフォルトは cluster.local)
+* *cluster_name* - クラスター名 (デフォルトは cluster.local)
 * *container_manager* - ノードにインストールするコンテナランタイム(デフォルトはdocker)
-* *dns_domain* - クラスタ DNS ドメイン名 (デフォルトは cluster.local)
+* *dns_domain* - クラスター DNS ドメイン名 (デフォルトは cluster.local)
 * *kube_network_plugin* - コンテナネットワーキングに使うプラグイン
-* *kube_service_addresses* - クラスタ IP のサブネット (デフォルトは 10.233.0.0/18)。
+* *kube_service_addresses* - クラスター IP のサブネット (デフォルトは 10.233.0.0/18)。
   kube_pods_subnet と重複してはいけません。
 * *kube_pods_subnet* - ポッドIPのサブネット（デフォルトは10.233.64.0/18）。
   kube_service_addresses と重複してはいけません。
-* *kube_network_node_prefix* - ノードごとにポッドIP用に割り当てられたサブネット。kube_pods_subnet の残りのビット数によって、クラスタ内のkube-nodeの数が決まります。これを 25 以上に設定すると、`kubelet_max_pods` 変数もそれに応じて調整されていないとplaybookでアサーションが発生します (アサーションは、これをハードリミットとして使用しない calico には適用されません、[Calico IP block sizes](https://docs.projectcalico.org/reference/resources/ippool#block-sizes)を見てください)。
-* *skydns_server* - DNS のクラスタ IP (デフォルトは 10.233.0.3)
-* *skydns_server_secondary* - coredns_dual展開で使用するCoreDNSのセカンダリクラスタIP(デフォルトは 10.233.0.4)
+* *kube_network_node_prefix* - ノードごとにポッドIP用に割り当てられたサブネット。kube_pods_subnet の残りのビット数によって、クラスター内のkube-nodeの数が決まります。これを 25 以上に設定すると、`kubelet_max_pods` 変数もそれに応じて調整されていないとplaybookでアサーションが発生します (アサーションは、これをハードリミットとして使用しない calico には適用されません、[Calico IP block sizes](https://docs.projectcalico.org/reference/resources/ippool#block-sizes)を見てください)。
+* *skydns_server* - DNS のクラスター IP (デフォルトは 10.233.0.3)
+* *skydns_server_secondary* - coredns_dual展開で使用するCoreDNSのセカンダリクラスターIP(デフォルトは 10.233.0.4)
 * *enable_coredns_k8s_external* - 有効にすると、CoreDNSサービスの[k8s_external plugin](https://coredns.io/plugins/k8s_external/)を設定します。
 * *coredns_k8s_external_zone* - CoreDNS k8s_externalプラグインが有効な場合に使用されるゾーン
   (デフォルトは k8s_external.local)
@@ -64,7 +64,7 @@ Kubernetesがデプロイされるためには、いくつかのパラメータ�
 * *kube_feature_gates* - alpha/experimental Kubernetes の機能のためのフィーチャーゲートを記述する key=value のペアのリストです。(デフォルトは `[]`) です)
 * *authorization_modes* - クラスターが設定されるべき[認可モード](https://kubernetes.io/docs/admin/authorization/#using-flags-for-your-authorization-module)のリストです。
   デフォルトは `['Node', 'RBAC']` (ノードとRBACオーサライザー) です。
-  注意: `Node` と `RBAC` はデフォルトで有効になっています。以前にデプロイされたクラスタは、RBACモードに変換することができます。ただし、Kubernetes APIに依存しているアプリケーションでは、サービスアカウントとクラスタのロールバインディングが必要になります。authorization_modesを`[]`に設定することで、この設定をオーバーライドすることができます。
+  注意: `Node` と `RBAC` はデフォルトで有効になっています。以前にデプロイされたクラスターは、RBACモードに変換することができます。ただし、Kubernetes APIに依存しているアプリケーションでは、サービスアカウントとクラスターのロールバインディングが必要になります。authorization_modesを`[]`に設定することで、この設定をオーバーライドすることができます。
 
 クラウドプロバイダがインスタンスのプライベートアドレスのように ``10.233.0.0/16`` を使用している場合は、``kube_service_addresses`` や ``kube_pods_subnet`` に別の値を指定するようにしてください。例えば ``172.18.0.0/16`` のようにです。
 
@@ -85,7 +85,7 @@ Kubernetesがデプロイされるためには、いくつかのパラメータ�
 * *docker_plugins* - このリストを使って、インストールする[Docker plugin](https://docs.docker.com/engine/extend/)を定義することができます。
 * *containerd_config* - containerdの設定ファイル(通常は/etc/containerd/config.toml)のパラメータを制御します。
   [デフォルト設定](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/container-engine/containerd/defaults/main.yml)はinventory変数で上書きすることができます。
-* *http_proxy/https_proxy/no_proxy* - プロキシの後ろにデプロイするためのプロキシ変数。no_proxy のデフォルトは、各ノードに対応するすべての内部クラスタIPとホスト名であることに注意してください。
+* *http_proxy/https_proxy/no_proxy* - プロキシの後ろにデプロイするためのプロキシ変数。no_proxy のデフォルトは、各ノードに対応するすべての内部クラスターIPとホスト名であることに注意してください。
 * *kubelet_deployment_type* - どのプラットフォームにkubeletをデプロイするかを制御します。
   利用可能なオプションは ``host`` と ``docker`` です。
   新しいリリースでは ``docker`` モードは動作しません。
@@ -184,7 +184,7 @@ APIサーバ、コントローラ、スケジューラコンポーネントの�
 ## アプリケーション変数
 
 * *helm_version* - デフォルトはv3.xで、Helm 2.xをインストールするにはv2のバージョン(例: `v2.16.1`)に設定します(Tillerもインストールされます！)。
-  Tillerを実行している既存のクラスタにv3を選択すると、そのままになります。その場合、Tillerを手動で削除する必要があります。
+  Tillerを実行している既存のクラスターにv3を選択すると、そのままになります。その場合、Tillerを手動で削除する必要があります。
 
 ## ユーザーアカウント
 
