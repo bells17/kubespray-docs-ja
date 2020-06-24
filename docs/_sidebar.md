@@ -3,7 +3,7 @@
 * [はじめに](/docs/getting-started.md)
 * [Ansible](docs/ansible.md)
 * [変数](/docs/vars.md)
-* Operations
+* 運用
   * [Integration](docs/integration.md)
   * [アップグレード](/docs/upgrades.md)
   * [HAモード](docs/ha-mode.md)
