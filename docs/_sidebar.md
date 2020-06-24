@@ -4,7 +4,7 @@
 * [Ansible](docs/ansible.md)
 * [変数](/docs/vars.md)
 * 運用
-  * [Integration](docs/integration.md)
+  * [既存のplaybookとの統合](docs/integration.md)
   * [アップグレード](/docs/upgrades.md)
   * [HAモード](docs/ha-mode.md)
   * [ノードの追加/入れ替え](docs/nodes.md)

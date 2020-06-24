@@ -1,13 +1,13 @@
-# Kubespray (kubespray) in own ansible playbooks repo
+# Kubespray(kubespray)を既存のplaybookで利用する
 
-1. Fork [kubespray repo](https://github.com/kubernetes-sigs/kubespray) to your personal/organisation account on github.
-   Note:
-     * All forked public repos at github will be also public, so **never commit sensitive data to your public forks**.
-     * List of all forked repos could be retrieved from github page of original project.
+1. [kubespray repo](https://github.com/kubernetes-sigs/kubespray)を個人/組織のgithubアカウントにフォークしてください:
+   注意:
+     * githubでフォークされたすべてのパブリックリポジトリもパブリックになるため、**機密データをパブリックフォークにコミットしないでください**。
+     * フォークされたすべてのリポジトリのリストは、元のプロジェクトのgithubページから取得できます。
 
-2. Add **forked repo** as submodule to desired folder in your existent ansible repo(for example 3d/kubespray):
+2. **forkリポジトリ** をサブモジュールとして既存のansibleリポジトリの目的のフォルダーに追加します(例: 3d/kubespray):
   ```git submodule add https://github.com/YOUR_GITHUB/kubespray.git kubespray```
-  Git will create `.gitmodules` file in your existent ansible repo:
+  Gitは既存のansibleリポジトリに `.gitmodules`ファイルを作成します:
 
    ```ini
    [submodule "3d/kubespray"]
@@ -15,13 +15,13 @@
          url = https://github.com/YOUR_GITHUB/kubespray.git
    ```
 
-3. Configure git to show submodule status:
+3. サブモジュールのステータスを表示するようにgitを構成します:
 ```git config --global status.submoduleSummary true```
 
-4. Add *original* kubespray repo as upstream:
+4. *元の* kubesprayリポジトリをupstreamとして追加します。
 ```git remote add upstream https://github.com/kubernetes-sigs/kubespray.git```
 
-5. Sync your master branch with upstream:
+5. masterブランチをupstreamと同期する:
 
    ```ShellSession
       git checkout master
@@ -30,11 +30,12 @@
       git push origin master
    ```
 
-6. Create a new branch which you will use in your working environment:
+6. 作業環境で使用する新しいブランチを作成します:
 ```git checkout -b work```
-    ***Never*** use master branch of your repository for your commits.
+    ***決して***コミットにリポジトリのmasterブランチを使用しないでください。
 
-7. Modify path to library and roles in your ansible.cfg file (role naming should be uniq, you may have to rename your existent roles if they have same names as kubespray project):
+7. ansible.cfgファイルのライブラリとロールへのパスを変更します
+ (ロールの名前は一意にする必要があります。kubesprayプロジェクトと同じ名前の既存のロールの名前を変更する必要がある場合があります):
 
    ```ini
    ...
@@ -43,11 +44,12 @@
    ...
    ```
 
-8. Copy and modify configs from kubespray `group_vars` folder to corresponding `group_vars` folder in your existent project.
-You could rename *all.yml* config to something else, i.e. *kubespray.yml* and create corresponding group in your inventory file, which will include all hosts groups related to kubernetes setup.
+8. kubesprayの `group_vars`フォルダから既存のプロジェクトの対応する` group_vars`フォルダに設定をコピーして変更します。
+  *all.yml* 構成を別の名前(*kubespray.yml* など)に変更し、対応するグループをinventoryファイルに作成します。
+  これには、kubernetesのセットアップに関連するすべてのホストグループが含まれます。
 
-9. Modify your ansible inventory file by adding mapping of your existent groups (if any) to kubespray naming.
-   For example:
+9. (存在する場合は)既存のグループのマッピングをkubesprayの命名に追加して、ansible inventoryファイルを変更します。
+   例:
 
    ```ini
      ...
@@ -70,34 +72,35 @@ You could rename *all.yml* config to something else, i.e. *kubespray.yml* and cr
      kubernetes
      ```
 
-     * Last entry here needed to apply kubespray.yml config file, renamed from all.yml of kubespray project.
+     * kubespray.yml設定ファイルを適用するために必要な最後のエントリーは、kubesprayプロジェクトのall.ymlから名前が変更されました。
 
-10. Now you can include kubespray tasks in you existent playbooks by including cluster.yml file:
+10. cluster.ymlファイルを含めることで、既存のプレイブックにkubesprayタスクを含めることができるようになりました:
 
      ```yml
      - name: Include kubespray tasks
        include: 3d/kubespray/cluster.yml
      ```
 
-     Or your could copy separate tasks from cluster.yml into your ansible repository.
+     あるいは、cluster.yml から個別のタスクをansibleリポジトリにコピーすることもできます。
 
-11. Commit changes to your ansible repo. Keep in mind, that submodule folder is just a link to the git commit hash of your forked repo.
-When you update your "work" branch you need to commit changes to ansible repo as well.
-Other members of your team should use ```git submodule sync```, ```git submodule update --init``` to get actual code from submodule.
+11. ansibleリポジトリに変更をコミットします。このサブモジュールフォルダは、フォークしたリポジトリのgitコミットハッシュへのリンクにすぎないことを覚えておいてください。
+"work"ブランチを更新する際には、ansible レポにも変更をコミットする必要があります。
+チームの他のメンバーは ````git submodule sync````, ````git submodule update --init```` を使って実際のコードを取得してください。
 
-## Contributing
+## コントリビュート
 
 If you made useful changes or fixed a bug in existent kubespray repo, use this flow for PRs to original kubespray repo.
+既存のkubesprayリポジトリに有用な変更を加えたり、バグを修正したりする場合、オリジナルのkubesprayリポジトリへのPRにはこのフローを利用してください。
 
-1. Sign the [CNCF CLA](https://git.k8s.io/community/CLA.md).
+1. [CNCF CLA](https://git.k8s.io/community/CLA.md)にサインする。
 
-2. Change working directory to git submodule directory (3d/kubespray).
+2. 作業ディレクトリをgitサブモジュールディレクトリに変更する(3d/kubespray)。
 
-3. Setup desired user.name and user.email for submodule.
-If kubespray is only one submodule in your repo you could use something like:
+3. サブモジュールに必要なuser.nameとuser.emailを設定します。
+もしkubesprayがあなたのリポジトリで1つのサブモジュールしかない場合は、次のようなものを使うことができます:
 ```git submodule foreach --recursive 'git config user.name "First Last" && git config user.email "your-email-addres@used.for.cncf"'```
 
-4. Sync with upstream master:
+4. upstreamのmasterと同期します:
 
    ```ShellSession
     git fetch upstream
@@ -105,26 +108,31 @@ If kubespray is only one submodule in your repo you could use something like:
     git push origin master
      ```
 
-5. Create new branch for the specific fixes that you want to contribute:
+5. コントリビュートしたい特定の修正のための新しいブランチを作成する:
 ```git checkout -b fixes-name-date-index```
-Branch name should be self explaining to you, adding date and/or index will help you to track/delete your old PRs.
+ブランチ名は日付やインデックスを追加することで、古いPRを追跡/削除するのに役立ちます。
 
-6. Find git hash of your commit in "work" repo and apply it to newly created "fix" repo:
+6. "work"リポジトリでコミットのgitハッシュを見つけて、新しく作成した"fix"リポジトリに適用します:
 
      ```ShellSession
      git cherry-pick <COMMIT_HASH>
      ```
 
-7. If you have several temporary-stage commits - squash them using [```git rebase -i```](https://eli.thegreenplace.net/2014/02/19/squashing-github-pull-requests-into-a-single-commit)
-Also you could use interactive rebase (```git rebase -i HEAD~10```) to delete commits which you don't want to contribute into original repo.
+7. 複数の一時的なコミットがある場合は、[```git rebase -i```](https://eli.thegreenplace.net/2014/02/19/squashing-github-pull-requests-into-a-single-commit)を使ってつぶすようにしてください
+また、インタラクティブなrebase (````git rebase -i HEAD~10````) を使って、オリジナルのリポジトリにコントリビュートしたくないコミットを削除することもできます。
 
-8. When your changes is in place, you need to check upstream repo one more time because it could be changed during your work.
-Check that you're on correct branch:
+
+8. 変更が入ったら、作業中に変更されている可能性があるので、もう一度upstreamのリポジトリを確認する必要があります。
+正しいブランチにあることを確認してください:
+
 ```git status```
-And pull changes from upstream (if any):
+そして、upstreamからの変更をpullします(もしあれば):
 ```git pull --rebase upstream master```
 
-9. Now push your changes to your **fork** repo with ```git push```. If your branch doesn't exists on github, git will propose you to use something like ```git push --set-upstream origin fixes-name-date-index```.
+9. これで、変更した内容を **fork** リポジトリに ```git push``` でプッシュします。
+もしあなたのブランチが github に存在しない場合、git は ````git push -set-upstream origin fixes-name-date-index``` のような使い方を提案してきます。
 
-10. Open you forked repo in browser, on the main page you will see proposition to create pull request for your newly created branch. Check proposed diff of your PR. If something is wrong you could safely delete "fix" branch on github using ```git push origin --delete fixes-name-date-index```, ```git branch -D fixes-name-date-index``` and start whole process from the beginning.
-If everything is fine - add description about your changes (what they do and why they're needed) and confirm pull request creation.
+10. ブラウザでフォークされたリポジトリを開くと、メインページに新しく作成したブランチのプルリクエストを作成するための提案が表示されます。
+提案されているプルリクエストの差分を確認してください。
+もし何か問題があれば ```git push origin --delete fixes-name-date-index```, ```git branch -D fixes-name-date-index``` を使ってgithub上の "fix" ブランチを安全に削除し、最初からすべての処理を行ってください。
+問題がなければ、変更点の説明 (何をしているのか、なぜ必要なのか) を追加し、プルリクエストの作成を確認してください。
