@@ -11,7 +11,7 @@
 
 ![Kubernetes Logo](https://raw.githubusercontent.com/kubernetes-sigs/kubespray/master/docs/img/kubernetes-logo.png)
 
-もし質問があれば[bells17.io/kubespray-docs-ja/](https://bells17.io/kubespray-docs-ja/)をチェックして、[kubernetes slack](https://kubernetes.slack.com)の **\#kubespray**チャンネルに参加してください。
+もし質問があれば[kubespray-docs-ja.bells17.io](https://kubespray-docs-ja.bells17.io)をチェックして、[kubernetes slack](https://kubernetes.slack.com)の **\#kubespray**チャンネルに参加してください。
 [ここ](http://slack.k8s.io/)から招待を受け取れます
 
 - **GCE、Azure、OpenStack、AWS、vSphere、Packet(ベアメタル)、Oracle Cloud Infrastructure(実験段階)またはベアメタル**上にKubernetesクラスターを構築
