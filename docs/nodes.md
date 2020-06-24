@@ -1,14 +1,16 @@
-# Adding/replacing a node
+# ノードの追加/入れ替え
 
 Modified from [comments in #3471](https://github.com/kubernetes-sigs/kubespray/issues/3471#issuecomment-530036084)
 
-## Limitation: Removal of first kube-master and etcd-master
+## 制限: 1台目のkube-masterとETCD-MASTERの削除
 
-Currently you can't remove the first node in your kube-master and etcd-master list. If you still want to remove this node you have to:
+現在のところ、kube-masterの1台目のノードおよびetcd-masterのリストのを削除することはできません。
+それでもこのノードを削除したい場合は、削除しなければなりません。
 
-### 1) Change order of current masters
+### 1) 現在のマスターの順番を変更する
 
-Modify the order of your master list by pushing your first entry to any other position. E.g. if you want to remove `node-1` of the following example:
+1台目のホストを他の位置に移動することで、マスターリストの順序を変更します。
+例えば以下の例の `node-1` を削除したい場合は:
 
 ```yaml
   children:
@@ -29,7 +31,7 @@ Modify the order of your master list by pushing your first entry to any other po
         node-3:
 ```
 
-change your inventory to:
+inventoryを以下のように入れ替えます:
 
 ```yaml
   children:
@@ -50,86 +52,98 @@ change your inventory to:
         node-1:
 ```
 
-## 2) Upgrade the cluster
+## 2) クラスターのアップグレード
 
-run `cluster-upgrade.yml` or `cluster.yml`. Now you are good to go on with the removal.
+`cluster-upgrade.yml` または `cluster.yml` を実行すれば、削除を実行できるようになります。
 
-## Adding/replacing a worker node
+## ワーカーノードの追加/入れ替え
 
-This should be the easiest.
+これが一番簡単なはずです。
 
-### 1) Add new node to the inventory
+### 1) inventoryに新しいノードを追加
 
-### 2) Run `scale.yml`
+### 2) `scale.yml` を実行
 
-You can use `--limit=NODE_NAME` to limit Kubespray to avoid disturbing other nodes in the cluster.
+クラスター内の他のノードに影響を与えないように制限するには、`--limit=NODE_NAME` を使用してください。
 
-Before using `--limit` run playbook `facts.yml` without the limit to refresh facts cache for all nodes.
+制限をかけずに `--limit` を使う前に、`facts.yml` playbookを実行してすべてのノードのfactのキャッシュを更新します。
 
-### 3) Remove an old node with remove-node.yml
+### 3) 古いノードをremove-node.ymlで削除する
 
-With the old node still in the inventory, run `remove-node.yml`. You need to pass `-e node=NODE_NAME` to the playbook to limit the execution to the node being removed.
+古いノードがinventoryに残っている状態で `remove-node.yml` を実行します。
+削除するノードの実行を制限するために、playbookに `-e node=NODE_NAME` を渡す必要があります。
   
-If the node you want to remove is not online, you should add `reset_nodes=false` to your extra-vars: `-e node=NODE_NAME reset_nodes=false`.
-Use this flag even when you remove other types of nodes like a master or etcd nodes.
+削除したいノードがオンラインになっていない場合は、次の用に`reset_nodes=false`をextra-varsに追加してください:
+`-e node=NODE_NAME reset_nodes=false`
+このフラグは、masterやetcdノードのような他のタイプのノードを削除する場合にも使用します。
 
-### 5) Remove the node from the inventory
+### 5) inventoryからノードを削除します。
 
-That's it.
+それだけです。
 
-## Adding/replacing a master node
+## マスターノードの追加/入れ替え
 
-### 1) Run `cluster.yml`
+### 1) `cluster.yml`を実行する
 
-Append the new host to the inventory and run `cluster.yml`. You can NOT use `scale.yml` for that.
+新しいホストをinventoryに追加して `cluster.yml` を実行します。これには `scale.yml` は使えません。
 
-### 3) Restart kube-system/nginx-proxy
+### 3) kube-system/nginx-proxy を再起動する
 
-In all hosts, restart nginx-proxy pod. This pod is a local proxy for the apiserver. Kubespray will update its static config, but it needs to be restarted in order to reload.
+すべてのホストでnginx-proxyポッドを再起動します。
+このポッドはapiserverのローカルプロキシです。
+Kubesprayは静的設定を更新しますが、リロードするには再起動が必要です。
 
 ```sh
-# run in every host
+# このコマンドを全てのホストで実行します
 docker ps | grep k8s_nginx-proxy_nginx-proxy | awk '{print $1}' | xargs docker restart
 ```
 
-### 4) Remove old master nodes
+### 4) 古いマスターノードの削除
 
-With the old node still in the inventory, run `remove-node.yml`. You need to pass `-e node=NODE_NAME` to the playbook to limit the execution to the node being removed.
-If the node you want to remove is not online, you should add `reset_nodes=false` to your extra-vars.
+古いノードがinventoryに残っている状態で `remove-node.yml` を実行します。
+削除するノードの実行を制限するために、playbookに `-e node=NODE_NAME` を渡す必要があります。
+削除したいノードがオンラインになっていない場合は、`reset_nodes=false` を追加してください。
 
-## Adding an etcd node
+## etcdノードの追加
 
-You need to make sure there are always an odd number of etcd nodes in the cluster. In such a way, this is always a replace or scale up operation. Either add two new nodes or remove an old one.
+クラスター内に常に奇数のetcdノードが存在することを確認する必要があります。
+このような方法では、これは常に入れ替えまたはスケールアップ操作になります。
+新しいノードを2つ追加するか、古いノードを削除します。
 
-### 1) Add the new node running cluster.yml
+### 1) cluster.ymlを実行している新しいノードを追加します。
 
-Update the inventory and run `cluster.yml` passing `--limit=etcd,kube-master -e ignore_assert_errors=yes`.
-If the node you want to add as an etcd node is already a worker or master node in your cluster, you have to remove him first using `remove-node.yml`.
+inventoryを更新してから、 `--limit=etcd,kube-master -e ignore_assert_errors=yes` を指定して `cluster.yml` を実行します。
+etcdノードとして追加したいノードが既にクラスター内のワーカーやマスターノードである場合は、まず `remove-node.yml` を使ってそのノードを削除してください。
 
-Run `upgrade-cluster.yml` also passing `--limit=etcd,kube-master -e ignore_assert_errors=yes`. This is necessary to update all etcd configuration in the cluster.  
+`--limit=etcd,kube-master -e ignore_assert_errors=yes` を指定して `upgrade-cluster.yml` を実行します。
+これはクラスター内のすべてのetcdの設定を更新するために必要です。  
 
-At this point, you will have an even number of nodes.
-Everything should still be working, and you should only have problems if the cluster decides to elect a new etcd leader before you remove a node.
-Even so, running applications should continue to be available.
+この時点で、ノードの数は偶数になります。
+すべてがまだ機能しているはずです。問題が発生するのは、ノードを削除する前にクラスターが新しいetcdリーダーを選出する場合のみです。
+それでも、実行中のアプリケーションは引き続き利用できるはずです。
 
-If you add multiple ectd nodes with one run, you might want to append `-e etcd_retries=10` to increase the amount of retries between each ectd node join.
-Otherwise the etcd cluster might still be processing the first join and fail on subsequent nodes. `etcd_retries=10` might work to join 3 new nodes.
+1回の実行で複数のectdノードを追加する場合は、 `-e etcd_retries=10` を追加して各ectdノードの結合間の再試行の回数を増やすことができます。
+そうしないと、etcdクラスターが最初の結合を処理し続け、後続のノードで失敗する可能性があります。
+`-e etcd_retries=10` は3つの新しいノードを結合するために機能する可能性があります。
 
-## Removing an etcd node
+## etcdノードの削除
 
-### 1) Remove an old etcd node
+### 1) 古いetcdノードを削除する
 
 With the node still in the inventory, run `remove-node.yml` passing `-e node=NODE_NAME` as the name of the node that should be removed.
 If the node you want to remove is not online, you should add `reset_nodes=false` to your extra-vars.
 
-### 2) Make sure only remaining nodes are in your inventory
+ノードがinventoryに残っている状態で、 `-e node=NODE_NAME` で削除するノードの名前を指定して `remove-node.yml` を実行します。
+削除するノードがオンラインでない場合は、 `reset_nodes=false` をextra-varsに追加する必要があります。
 
-Remove `NODE_NAME` from your inventory file.
+### 2) 残りのノードのみがinventoryにあることを確認してください
 
-### 3) Update kubernetes and network configuration files with the valid list of etcd members
+inventoryファイルから `NODE_NAME` を削除します。
 
-Run `cluster.yml` to regenerate the configuration files on all remaining nodes.
+### 3) 有効なetcdメンバーのリストでkubernetesとネットワーク構成ファイルを更新します
 
-### 4) Shutdown the old instance
+`cluster.yml` を実行して、残りのすべてのノードで構成ファイルを再生成します。
 
-That's it.
+### 4) 古いインスタンスをシャットダウンします
+
+それだけです。

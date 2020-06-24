@@ -7,7 +7,7 @@
   * [Integration](docs/integration.md)
   * [Upgrades](/docs/upgrades.md)
   * [HAモード](docs/ha-mode.md)
-  * [Adding/replacing a node](docs/nodes.md)
+  * [ノードの追加/入れ替え](docs/nodes.md)
   * [Large deployments](docs/large-deployments.md)
   * [Air-Gap Installation](docs/offline-environment.md)
 * CNI
