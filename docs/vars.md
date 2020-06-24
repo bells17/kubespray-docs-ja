@@ -1,135 +1,108 @@
-# Configurable Parameters in Kubespray
+# Kubesprayで設定できるパラメータ
 
-## Generic Ansible variables
+## Ansibleの一般的な変数
 
-You can view facts gathered by Ansible automatically
-[here](https://docs.ansible.com/ansible/playbooks_variables.html#information-discovered-from-systems-facts).
+Ansible が自動的に収集したfactは[ここ](https://docs.ansible.com/ansible/playbooks_variables.html#information-discovered-from-systems-facts)で見ることができます。
 
-Some variables of note include:
+注目すべき変数には以下のものがあります:
 
-* *ansible_user*: user to connect to via SSH
-* *ansible_default_ipv4.address*: IP address Ansible automatically chooses.
-  Generated based on the output from the command ``ip -4 route get 8.8.8.8``
+* *ansible_user*: SSH経由で接続するユーザー
+* *ansible_default_ipv4.address*: Ansibleが自動的に選択するIPアドレス。
+  ``ip -4 route get 8.8.8.8`` コマンドの出力に基づいて生成されます
 
-## Common vars that are used in Kubespray
+## Kubesprayで使用される一般的な変数
 
-* *calico_version* - Specify version of Calico to use
-* *calico_cni_version* - Specify version of Calico CNI plugin to use
-* *docker_version* - Specify version of Docker to used (should be quoted
-  string). Must match one of the keys defined for *docker_versioned_pkg*
-  in `roles/container-engine/docker/vars/*.yml`.
-* *etcd_version* - Specify version of ETCD to use
-* *ipip* - Enables Calico ipip encapsulation by default
-* *kube_network_plugin* - Sets k8s network plugin (default Calico)
-* *kube_proxy_mode* - Changes k8s proxy mode to iptables mode
-* *kube_version* - Specify a given Kubernetes hyperkube version
-* *searchdomains* - Array of DNS domains to search when looking up hostnames
-* *nameservers* - Array of nameservers to use for DNS lookup
-* *preinstall_selinux_state* - Set selinux state, permitted values are permissive and disabled.
+* *calico_version* - 使用するCalicoのバージョンを指定します
+* *calico_cni_version* - 使用するCalico CNIプラグインのバージョンを指定します
+* *docker_version* - 使用するDockerのバージョンを指定します（引用符で囲んだ文字列である必要があります）。
+`roles/container-engine/docker/vars/*.yml` の *docker_versioned_pkg* に定義されたキーの1つと一致する必要があります。
+* *etcd_version* - 使用するETCDのバージョンを指定します
+* *ipip* - デフォルトでCalico IPIPカプセル化を有効にします
+* *kube_network_plugin* - k8sネットワークプラグインを設定します（デフォルトはCalico）
+* *kube_proxy_mode* - k8sプロキシモードをiptablesモードに変更します
+* *kube_version* - 特定のKubernetes hyperkubeバージョンを指定します
+* *searchdomains* - ホスト名を検索するときに検索するDNSドメインの配列
+* *nameservers* - DNSルックアップに使用するネームサーバーの配列
+* *preinstall_selinux_state* - selinuxの状態を設定します。許可された値は許容され無効になります
 
-## Addressing variables
+## アドレス変数
 
-* *ip* - IP to use for binding services (host var)
-* *access_ip* - IP for other hosts to use to connect to. Often required when
-  deploying from a cloud, such as OpenStack or GCE and you have separate
-  public/floating and private IPs.
-* *ansible_default_ipv4.address* - Not Kubespray-specific, but it is used if ip
-  and access_ip are undefined
+* *ip* - サービスのバインドに使用するIP（ホスト変数）
+* *access_ip* - 接続に使用する他のホストのIP。しばしば必要となる。
+  OpenStackやGCEなどのクラウドからデプロイすると、パブリックIP/フローティングIPとプライベートIPを別々に持っている。
+* *ansible_default_ipv4.address* - Kubespray固有ではありませんが、ipおよびaccess_ipが未定義の場合に使用されます
 * *loadbalancer_apiserver* - If defined, all hosts will connect to this
   address instead of localhost for kube-masters and kube-master[0] for
   kube-nodes. See more details in the
   [HA guide](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ha-mode.md).
-* *loadbalancer_apiserver_localhost* - makes all hosts to connect to
-  the apiserver internally load balanced endpoint. Mutual exclusive to the
-  `loadbalancer_apiserver`. See more details in the
-  [HA guide](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ha-mode.md).
+  定義されている場合、kube-masterやkube-nodeのkube-master[0]など、すべてのホストはlocalhostの代わりにこのアドレスに接続します。 詳細は[HAガイド](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ha-mode.md)をご覧ください
+* *loadbalancer_apiserver_localhost* - すべてのホストがapiserverに接続する際に内部ロードバランサーのエンドポイントに接続するようにします。
+  `loadbalancer_apiserver` と一緒に設定できません。 詳細については、[HAガイド](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ha-mode.md)をご覧ください。
 
 ## Cluster variables
 
-Kubernetes needs some parameters in order to get deployed. These are the
-following default cluster parameters:
+Kubernetesがデプロイされるためには、いくつかのパラメータが必要です。
+これらは以下のデフォルトのクラスタパラメータです:
 
-* *cluster_name* - Name of cluster (default is cluster.local)
-* *container_manager* - Container Runtime to install in the nodes (default is docker)
-* *dns_domain* - Name of cluster DNS domain (default is cluster.local)
-* *kube_network_plugin* - Plugin to use for container networking
-* *kube_service_addresses* - Subnet for cluster IPs (default is
-  10.233.0.0/18). Must not overlap with kube_pods_subnet
-* *kube_pods_subnet* - Subnet for Pod IPs (default is 10.233.64.0/18). Must not
-  overlap with kube_service_addresses.
-* *kube_network_node_prefix* - Subnet allocated per-node for pod IPs. Remaining
-  bits in kube_pods_subnet dictates how many kube-nodes can be in cluster. Setting this > 25 will
-  raise an assertion in playbooks if the `kubelet_max_pods` var also isn't adjusted accordingly
-  (assertion not applicable to calico which doesn't use this as a hard limit, see
-  [Calico IP block sizes](https://docs.projectcalico.org/reference/resources/ippool#block-sizes).
-* *skydns_server* - Cluster IP for DNS (default is 10.233.0.3)
-* *skydns_server_secondary* - Secondary Cluster IP for CoreDNS used with coredns_dual deployment (default is 10.233.0.4)
-* *enable_coredns_k8s_external* - If enabled, it configures the [k8s_external plugin](https://coredns.io/plugins/k8s_external/)
-  on the CoreDNS service.
-* *coredns_k8s_external_zone* - Zone that will be used when CoreDNS k8s_external plugin is enabled
-  (default is k8s_external.local)
-* *enable_coredns_k8s_endpoint_pod_names* - If enabled, it configures endpoint_pod_names option for kubernetes plugin.
-  on the CoreDNS service.
-* *cloud_provider* - Enable extra Kubelet option if operating inside GCE or
-  OpenStack (default is unset)
-* *kube_hostpath_dynamic_provisioner* - Required for use of PetSets type in
-  Kubernetes
-* *kube_feature_gates* - A list of key=value pairs that describe feature gates for
-  alpha/experimental Kubernetes features. (defaults is `[]`)
-* *authorization_modes* - A list of [authorization mode](
-https://kubernetes.io/docs/admin/authorization/#using-flags-for-your-authorization-module)
-  that the cluster should be configured for. Defaults to `['Node', 'RBAC']`
-  (Node and RBAC authorizers).
-  Note: `Node` and `RBAC` are enabled by default. Previously deployed clusters can be
-  converted to RBAC mode. However, your apps which rely on Kubernetes API will
-  require a service account and cluster role bindings. You can override this
-  setting by setting authorization_modes to `[]`.
+* *cluster_name* - クラスタ名 (デフォルトは cluster.local)
+* *container_manager* - ノードにインストールするコンテナランタイム(デフォルトはdocker)
+* *dns_domain* - クラスタ DNS ドメイン名 (デフォルトは cluster.local)
+* *kube_network_plugin* - コンテナネットワーキングに使うプラグイン
+* *kube_service_addresses* - クラスタ IP のサブネット (デフォルトは 10.233.0.0/18)。
+  kube_pods_subnet と重複してはいけません。
+* *kube_pods_subnet* - ポッドIPのサブネット（デフォルトは10.233.64.0/18）。
+  kube_service_addresses と重複してはいけません。
+* *kube_network_node_prefix* - ノードごとにポッドIP用に割り当てられたサブネット。kube_pods_subnet の残りのビット数によって、クラスタ内のkube-nodeの数が決まります。これを 25 以上に設定すると、`kubelet_max_pods` 変数もそれに応じて調整されていないとplaybookでアサーションが発生します (アサーションは、これをハードリミットとして使用しない calico には適用されません、[Calico IP block sizes](https://docs.projectcalico.org/reference/resources/ippool#block-sizes)を見てください)。
+* *skydns_server* - DNS のクラスタ IP (デフォルトは 10.233.0.3)
+* *skydns_server_secondary* - coredns_dual展開で使用するCoreDNSのセカンダリクラスタIP(デフォルトは 10.233.0.4)
+* *enable_coredns_k8s_external* - 有効にすると、CoreDNSサービスの[k8s_external plugin](https://coredns.io/plugins/k8s_external/)を設定します。
+* *coredns_k8s_external_zone* - CoreDNS k8s_externalプラグインが有効な場合に使用されるゾーン
+  (デフォルトは k8s_external.local)
+* *enable_coredns_k8s_endpoint_pod_names* - 有効にすると、CoreDNSサービス上のkubernetesプラグインのendpoint_pod_namesオプションを設定します。
+* *cloud_provider* - GCE または OpenStack 内で運用している場合、追加のKubeletオプションを有効にする (デフォルトは未設定)
+* *kube_hostpath_dynamic_provisioner* - KubernetesでPetSets型を使用する場合に必要
+* *kube_feature_gates* - alpha/experimental Kubernetes の機能のためのフィーチャーゲートを記述する key=value のペアのリストです。(デフォルトは `[]`) です)
+* *authorization_modes* - クラスターが設定されるべき[認可モード](https://kubernetes.io/docs/admin/authorization/#using-flags-for-your-authorization-module)のリストです。
+  デフォルトは `['Node', 'RBAC']` (ノードとRBACオーサライザー) です。
+  注意: `Node` と `RBAC` はデフォルトで有効になっています。以前にデプロイされたクラスタは、RBACモードに変換することができます。ただし、Kubernetes APIに依存しているアプリケーションでは、サービスアカウントとクラスタのロールバインディングが必要になります。authorization_modesを`[]`に設定することで、この設定をオーバーライドすることができます。
 
-Note, if cloud providers have any use of the ``10.233.0.0/16``, like instances'
-private addresses, make sure to pick another values for ``kube_service_addresses``
-and ``kube_pods_subnet``, for example from the ``172.18.0.0/16``.
+クラウドプロバイダがインスタンスのプライベートアドレスのように ``10.233.0.0/16`` を使用している場合は、``kube_service_addresses`` や ``kube_pods_subnet`` に別の値を指定するようにしてください。例えば ``172.18.0.0/16`` のようにです。
 
-## DNS variables
+## DNS変数
 
-By default, hosts are set up with 8.8.8.8 as an upstream DNS server and all
-other settings from your existing /etc/resolv.conf are lost. Set the following
-variables to match your requirements.
+デフォルトでは、ホストはアップストリームのDNSサーバーとして8.8.8.8が設定され、既存の/etc/resolv.confからその他の設定はすべて失われます。
+以下の変数を設定して、要件に合わせて設定します。
 
-* *upstream_dns_servers* - Array of upstream DNS servers configured on host in
-  addition to Kubespray deployed DNS
-* *nameservers* - Array of DNS servers configured for use by hosts
-* *searchdomains* - Array of up to 4 search domains
+* *upstream_dns_servers* - KubesprayでデプロイされたDNSに追加する、ホスト上に構成されたアップストリームのDNSサーバーの配列
+* *nameservers* - ホストが使用するように設定されたDNSサーバーの配列
+* *searchdomains* - 最大4つの検索ドメインの配列
 
-For more information, see [DNS
-Stack](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/dns-stack.md).
+詳細については[DNSスタック](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/dns-stack.md)を参照してください。
 
-## Other service variables
+## その他のサービスの変数
 
-* *docker_options* - Commonly used to set
-  ``--insecure-registry=myregistry.mydomain:5000``
-* *docker_plugins* - This list can be used to define [Docker plugins](https://docs.docker.com/engine/extend/) to install.
-* *containerd_config* - Controls some parameters in containerd configuration file (usually /etc/containerd/config.toml).
-  [Default config](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/container-engine/containerd/defaults/main.yml) can be overriden in inventory vars.
-* *http_proxy/https_proxy/no_proxy* - Proxy variables for deploying behind a
-  proxy. Note that no_proxy defaults to all internal cluster IPs and hostnames
-  that correspond to each node.
-* *kubelet_deployment_type* - Controls which platform to deploy kubelet on.
-  Available options are ``host`` and ``docker``. ``docker`` mode
-  is unlikely to work on newer releases. Starting with Kubernetes v1.7
-  series, this now defaults to ``host``. Before v1.7, the default was Docker.
-  This is because of cgroup [issues](https://github.com/kubernetes/kubernetes/issues/43704).
-* *kubelet_load_modules* - For some things, kubelet needs to load kernel modules.  For example,
-  dynamic kernel services are needed for mounting persistent volumes into containers.  These may not be
-  loaded by preinstall kubernetes processes.  For example, ceph and rbd backed volumes.  Set this variable to
-  true to let kubelet load kernel modules.
-* *kubelet_cgroup_driver* - Allows manual override of the
-  cgroup-driver option for Kubelet. By default autodetection is used
-  to match Docker configuration.
-* *kubelet_rotate_certificates* - Auto rotate the kubelet client certificates by requesting new certificates
-  from the kube-apiserver when the certificate expiration approaches.
-* *node_labels* - Labels applied to nodes via kubelet --node-labels parameter.
-  For example, labels can be set in the inventory as variables or more widely in group_vars.
-  *node_labels* can be defined either as a dict or a comma-separated labels string:
+* *docker_options* - 一般的には ``--insecure-registry=myregistry.mydomain:5000`` を設定するのに使われます。
+* *docker_plugins* - このリストを使って、インストールする[Docker plugin](https://docs.docker.com/engine/extend/)を定義することができます。
+* *containerd_config* - containerdの設定ファイル(通常は/etc/containerd/config.toml)のパラメータを制御します。
+  [デフォルト設定](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/container-engine/containerd/defaults/main.yml)はinventory変数で上書きすることができます。
+* *http_proxy/https_proxy/no_proxy* - プロキシの後ろにデプロイするためのプロキシ変数。no_proxy のデフォルトは、各ノードに対応するすべての内部クラスタIPとホスト名であることに注意してください。
+* *kubelet_deployment_type* - どのプラットフォームにkubeletをデプロイするかを制御します。
+  利用可能なオプションは ``host`` と ``docker`` です。
+  新しいリリースでは ``docker`` モードは動作しません。
+  Kubernetes v1.7 からはデフォルトが ``host`` になりました。
+  v1.7以前はデフォルトがDockerでした。
+  これはcgroup [issues](https://github.com/kubernetes/kubernetes/issues/43704)が原因です。
+* *kubelet_load_modules* - いくつかのことについて、kubeletはカーネルモジュールをロードする必要があります。
+  例えばコンテナに永続的なボリュームをマウントするためには動的なカーネルサービスが必要です。
+  これらはプリインストールされたkubernetesプロセスではロードされない場合があります。
+  例えばcephやrbdのバックアップされたボリュームなどです。
+  この変数をtrueに設定すると、kubelet にカーネルモジュールをロードさせることができます。
+* *kubelet_cgroup_driver* - Kubeletのcgroup-driverオプションを手動で上書きすることができます。
+  デフォルトではDockerの設定に合わせた自動検出が使用されます。
+* *kubelet_rotate_certificates* - 証明書の有効期限が近づいたときに、kube-apiserver に新しい証明書を要求することで、kubeletのクライアント証明書を自動的にローテーションさせます。
+* *node_labels* - ラベルはkubeletの--node-labelsパラメータによってノードに適用されます。
+  例えば、ラベルはinventory内の変数を変数で設定することができます。また、group_varsでより広範囲に設定することができます。
+  *node_labels* はdictまたはカンマ区切りのラベル文字列として定義することができます:
 
 ```yml
 node_labels:
@@ -143,29 +116,33 @@ node_labels: "label1_name=label1_value,label2_name=label2_value"
   For example, taints can be set in the inventory as variables or more widely in group_vars.
   *node_taints* has to be defined as a list of strings in format `key=value:effect`, e.g.:
 
+  taintはkubeletの--register-with-taintsパラメータによってノードに適用されます。
+  例えば、taintはinventory内の変数を変数で設定することができます。また、group_varsでより広範囲に設定することができます。
+  *node_taints*は、`key=value:effect`形式の文字列のリストとして定義されなければなりません。
+  例:
+
 ```yml
 node_taints:
   - "node.example.com/external=true:NoSchedule"
 ```
 
-* *podsecuritypolicy_enabled* - When set to `true`, enables the PodSecurityPolicy admission controller and defines two policies `privileged` (applying to all resources in `kube-system` namespace and kubelet) and `restricted` (applying all other namespaces).
-  Addons deployed in kube-system namespaces are handled.
-* *kubernetes_audit* - When set to `true`, enables Auditing.
-  The auditing parameters can be tuned via the following variables (which default values are shown below):
+* *podsecuritypolicy_enabled* - `true`に設定すると、PodSecurityPolicyアドミッションコントローラを有効にし、`privileged` (`kube-system` 名前空間とkubeletにあるすべてのリソースに適用) と `restricted` (他のすべての名前空間に適用) の2つのポリシーを定義します。
+  kube-system 名前空間にデプロイされたアドオンに適用されます。
+* *kubernetes_audit* - `true` に設定すると監査機能を有効にします。
+  監査パラメータは、以下の変数(デフォルト値を以下に示す)で調整することができます:
   * `audit_log_path`: /var/log/audit/kube-apiserver-audit.log
   * `audit_log_maxage`: 30
   * `audit_log_maxbackups`: 1
   * `audit_log_maxsize`: 100
   * `audit_policy_file`: "{{ kube_config_dir }}/audit-policy/apiserver-audit-policy.yaml"
 
-  By default, the `audit_policy_file` contains [default rules](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/kubernetes/master/templates/apiserver-audit-policy.yaml.j2) that can be overridden with the `audit_policy_custom_rules` variable.
+  デフォルトでは、`audit_policy_file` には [デフォルトルール](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/kubernetes/master/templates/apiserver-audit-policy.yaml.j2) が含まれており、これは `audit_policy_custom_rules` 変数で上書きすることができます。
 
-### Custom flags for Kube Components
+### Kubernetesコンポーネントのカスタムフラグ
 
-For all kube components, custom flags can be passed in. This allows for edge cases where users need changes to the default deployment that may not be applicable to all deployments.
+すべてのKubernetesコンポーネントに対して、カスタムフラグを渡すことができます。これにより、すべてのデプロイメントに適用できないデフォルトのデプロイメントを変更する必要がある場合のエッジケースに対応することができます。
 
-Extra flags for the kubelet can be specified using these variables,
-in the form of dicts of key-value pairs of configuration parameters that will be inserted into the kubelet YAML config file. The `kubelet_node_config_extra_args` apply kubelet settings only to nodes and not masters. Example:
+これらの変数は、kubeletのYAML設定ファイルに挿入される設定パラメータのキーバリューのペアの辞書形式で、kubeletの追加フラグを指定することができます。`kubelet_node_config_extra_args` はkubeletの設定をノードにのみ適用し、マスターには適用しません。例:
 
 ```yml
 kubelet_config_extra_args:
@@ -177,17 +154,17 @@ kubelet_config_extra_args:
     memory.available: "300Mi"
 ```
 
-The possible vars are:
+可能な変数は以下の通りです:
 
 * *kubelet_config_extra_args*
 * *kubelet_node_config_extra_args*
 
-Previously, the same parameters could be passed as flags to kubelet binary with the following vars:
+以前は、同じパラメータをフラグとしてkubeletバイナリに以下の変数を渡すことができました:
 
 * *kubelet_custom_flags*
 * *kubelet_node_custom_flags*
 
-The `kubelet_node_custom_flags` apply kubelet settings only to nodes and not masters. Example:
+`kubelet_node_custom_flags` はマスターではなくノードにのみ適用されます。例:
 
 ```yml
 kubelet_custom_flags:
@@ -196,24 +173,22 @@ kubelet_custom_flags:
   - "--eviction-soft=memory.available<300Mi"
 ```
 
-This alternative is deprecated and will remain until the flags are completely removed from kubelet
+この代替案は非推奨であり、kubeletからフラグが完全に削除されるまで残ります。
 
-Extra flags for the API server, controller, and scheduler components can be specified using these variables,
-in the form of dicts of key-value pairs of configuration parameters that will be inserted into the kubeadm YAML config file:
+APIサーバ、コントローラ、スケジューラコンポーネントの追加フラグは、以下の変数を使用してkubeadmのYAML設定ファイルに挿入される設定パラメータのキーバリューのペアの辞書形式で指定することができます:
 
 * *kube_kubeadm_apiserver_extra_args*
 * *kube_kubeadm_controller_extra_args*
 * *kube_kubeadm_scheduler_extra_args*
 
-## App variables
+## アプリケーション変数
 
-* *helm_version* - Defaults to v3.x, set to a v2 version (e.g. `v2.16.1` ) to install Helm 2.x (will install Tiller!).
-Picking v3 for an existing cluster running Tiller will leave it alone. In that case you will have to remove Tiller manually afterwards.
+* *helm_version* - デフォルトはv3.xで、Helm 2.xをインストールするにはv2のバージョン(例: `v2.16.1`)に設定します(Tillerもインストールされます！)。
+  Tillerを実行している既存のクラスタにv3を選択すると、そのままになります。その場合、Tillerを手動で削除する必要があります。
 
-## User accounts
+## ユーザーアカウント
 
-The variable `kube_basic_auth` is false by default, but if set to true, a user with admin rights is created, named `kube`.
-The password can be viewed after deployment by looking at the file
-`{{ credentials_dir }}/kube_user.creds` (`credentials_dir` is set to `{{ inventory_dir }}/credentials` by default). This contains a randomly generated
-password. If you wish to set your own password, just precreate/modify this
-file yourself or change `kube_api_pwd` var.
+変数 `kube_basic_auth` はデフォルトでは false になっていますが、true に設定すると管理者権限を持つユーザが `kube` という名前で作成されます。
+パスワードはデプロイ後に `{{ credentials_dir }}/kube_user.creds` というファイル(デフォルトでは `credentials_dir` に `{{ inventory_dir }}/credentials` が設定されています) を見ることで確認できます。
+これにはランダムに生成されたパスワードが含まれています。
+独自のパスワードを設定したい場合は、このファイルを自分で作成/変更するか、 `kube_api_pwd` 変数を変更してください。
