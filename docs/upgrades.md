@@ -1,10 +1,10 @@
-# Upgrading Kubernetes in Kubespray
+# KubesprayでのKubernetesのアップグレード
 
-Kubespray handles upgrades the same way it handles initial deployment. That is to
-say that each component is laid down in a fixed order.
+Kubesprayは、初期展開と同じ方法でアップグレードを処理します。
+つまり、各コンポーネントは決まった順序で配置されます。
 
-You can also individually control versions of components by explicitly defining their
-versions. Here are all version vars for each component:
+コンポーネントのバージョンを明示的に定義することで、コンポーネントのバージョンを個別に制御することもできます。
+各コンポーネントのすべてのバージョン変数は次のとおりです:
 
 * docker_version
 * kube_version
@@ -15,40 +15,38 @@ versions. Here are all version vars for each component:
 * flannel_version
 * kubedns_version
 
-:warning: [Attempting to upgrade from an older release straight to the latest release is unsupported and likely to break something](https://github.com/kubernetes-sigs/kubespray/issues/3849#issuecomment-451386515) :warning:
+:warning: [古いリリースから最新のリリースに直接アップグレードすることはサポートされておらず、何かが壊れる可能性があります](https://github.com/kubernetes-sigs/kubespray/issues/3849#issuecomment-451386515) :warning:
 
-See [Multiple Upgrades](#multiple-upgrades) for how to upgrade from older releases to the latest release
+古いリリースから最新のリリースにアップグレードする方法については、[複数のアップグレード](#複数のアップグレード)を参照してください
 
-## Unsafe upgrade example
+## 安全でないアップグレードの例
 
-If you wanted to upgrade just kube_version from v1.4.3 to v1.4.6, you could
-deploy the following way:
+kube_versionのみをv1.4.3からv1.4.6にアップグレードする場合は、次の方法でデプロイできます:
 
 ```ShellSession
 ansible-playbook cluster.yml -i inventory/sample/hosts.ini -e kube_version=v1.4.3 -e upgrade_cluster_setup=true
 ```
 
-And then repeat with v1.4.6 as kube_version:
+そしてkube_versionをv1.4.6にして再度実行します:
 
 ```ShellSession
 ansible-playbook cluster.yml -i inventory/sample/hosts.ini -e kube_version=v1.4.6 -e upgrade_cluster_setup=true
 ```
 
-The var ```-e upgrade_cluster_setup=true``` is needed to be set in order to migrate the deploys of e.g kube-apiserver inside the cluster immediately which is usually only done in the graceful upgrade. (Refer to [#4139](https://github.com/kubernetes-sigs/kubespray/issues/4139) and [#4736](https://github.com/kubernetes-sigs/kubespray/issues/4736))
+クラスター内の kube-apiserver のようなデプロイをすぐに移行するためには ````-e upgrade_cluster_setup=true```` という変数を設定する必要がありますが、これは通常gracefulアップグレードでのみ行われます。([#4139](https://github.com/kubernetes-sigs/kubespray/issues/4139)と[#4736](https://github.com/kubernetes-sigs/kubespray/issues/4736)を参照してください)
 
-## Graceful upgrade
+## Gracefulアップグレード
 
-Kubespray also supports cordon, drain and uncordoning of nodes when performing
-a cluster upgrade. There is a separate playbook used for this purpose. It is
-important to note that upgrade-cluster.yml can only be used for upgrading an
-existing cluster. That means there must be at least 1 kube-master already
-deployed.
+Kubesprayはクラスターのアップグレードを実行する際にノードの紐付け、ドレイン、紐付け解除もサポートしています。
+このために使用する別のplaybookがあります。
+注意しなければならないのは、upgrade-cluster.yml は既存のクラスターのアップグレードにしか使えないということです。
+つまり、少なくとも1つのkube-masterがすでにデプロイされている必要があります。
 
 ```ShellSession
 ansible-playbook upgrade-cluster.yml -b -i inventory/sample/hosts.ini -e kube_version=v1.6.0
 ```
 
-After a successful upgrade, the Server Version should be updated:
+アップグレードが成功した後、サーバーのバージョンを更新する必要があります:
 
 ```ShellSession
 $ kubectl version
@@ -56,19 +54,20 @@ Client Version: version.Info{Major:"1", Minor:"6", GitVersion:"v1.6.0", GitCommi
 Server Version: version.Info{Major:"1", Minor:"6", GitVersion:"v1.6.0+coreos.0", GitCommit:"8031716957d697332f9234ddf85febb07ac6c3e3", GitTreeState:"clean", BuildDate:"2017-03-29T04:33:09Z", GoVersion:"go1.7.5", Compiler:"gc", Platform:"linux/amd64"}
 ```
 
-## Multiple upgrades
+## 複数のアップグレード
 
 :warning: [Do not skip releases when upgrading--upgrade by one tag at a time.](https://github.com/kubernetes-sigs/kubespray/issues/3849#issuecomment-451386515) :warning:
 
-For instance, if you're on v2.6.0, then check out v2.7.0, run the upgrade, check out the next tag, and run the next upgrade, etc.
+例えば、v2.6.0ならv2.7.0をチェックアウトして、アップグレードを実行して、次のタグをチェックアウトして、次のアップグレードを実行するなど。
 
-Assuming you don't explicitly define a kubernetes version in your k8s-cluster.yml, you simply check out the next tag and run the upgrade-cluster.yml playbook
+k8s-cluster.ymlで明示的にkubernetesのバージョンを定義していないと仮定して、次のタグをチェックアウトして、upgrade-cluster.yml playbookを実行するだけです。
 
-* If you do define kubernetes version in your inventory (e.g. group_vars/k8s-cluster.yml) then either make sure to update it before running upgrade-cluster, or specify the new version you're upgrading to: `ansible-playbook -i inventory/mycluster/hosts.ini -b upgrade-cluster.yml -e kube_version=v1.11.3`
+* inventoryにkubernetesのバージョンを定義している場合(例: group_vars/k8s-cluster.yml)、クラスターのアップグレードを実行する前に更新するか、このようにアップグレードするバージョンを指定してください:
+`ansible-playbook -i inventory/mycluster/hosts.ini -b upgrade-cluster.yml -e kube_version=v1.11.3`
 
-  Otherwise, the upgrade will leave your cluster at the same k8s version defined in your inventory vars.
+  行わなければ、アップグレードを行ってもクラスターのk8sバージョンはinventory変数で定義されたバージョンのままです。
 
-The below example shows taking a cluster that was set up for v2.6.0 up to v2.10.0
+以下の例では、v2.6.0 で設定したクラスターを v2.10.0 にアップグレードしています
 
 ```ShellSession
 $ kubectl get node
@@ -93,7 +92,7 @@ $ git checkout v2.7.0
 Previous HEAD position was 8b3ce6e4 bump upgrade tests to v2.5.0 commit (#3087)
 HEAD is now at 05dabb7e Fix Bionic networking restart error #3430 (#3431)
 
-# NOTE: May need to sudo pip3 install -r requirements.txt when upgrading.
+# 注意: アップグレード時には、sudo pip3 install -r requirements.txt を実行する必要があるかもしれません
 
 ansible-playbook -i inventory/mycluster/hosts.ini -b upgrade-cluster.yml
 
@@ -110,11 +109,11 @@ Previous HEAD position was 05dabb7e Fix Bionic networking restart error #3430 (#
 HEAD is now at 9051aa52 Fix ubuntu-contiv test failed (#3808)
 ```
 
-:info: NOTE: Review changes between the sample inventory and your inventory when upgrading versions. :info:
+:information_source: 注意：バージョンをアップグレードする際には、サンプルinventoryとinventoryの間の変更を確認してください :information_source:
 
-Some deprecations between versions that mean you can't just upgrade straight from 2.7.0 to 2.8.0 if you started with the sample inventory.
+サンプルinventoryから始めた場合、2.7.0から2.8.0に直接アップグレードすることができないことを意味するバージョン間のいくつかの非推奨項目について。
 
-In this case, I set "kubeadm_enabled" to false, knowing that it is deprecated and removed by 2.9.0, to delay converting the cluster to kubeadm as long as I could.
+この場合、"kubeadm_enabled"は2.9.0で非推奨となり削除されることを知っていて、クラスターのkubeadmへのコンバートを後回しにするために、"kubeadm_enabled "をfalseに設定しました。
 
 ```ShellSession
 $ ansible-playbook -i inventory/mycluster/hosts.ini -b upgrade-cluster.yml
@@ -226,11 +225,11 @@ Previous HEAD position was 6f97687d Release 2.8 robust san handling (#4478)
 HEAD is now at a4e65c7c Upgrade to Ansible >2.7.0 (#4471)
 ```
 
-:warning: IMPORTANT: Some of the variable formats changed in the k8s-cluster.yml between 2.8.5 and 2.9.0 :warning:
+:warning: 重要: 2.8.5 と 2.9.0 の間で k8s-cluster.yml の一部の変数フォーマットが変更になりました :warning:
 
-If you do not keep your inventory copy up to date, **your upgrade will fail** and your first master will be left non-functional until fixed and re-run.
+inventoryのコピーを最新の状態にしておかないと、**あなたのアップグレードは失敗し**、1台目のマスターは修正されて再実行されるまで機能しないままになります。
 
-It is at this point the cluster was upgraded from non-kubeadm to kubeadm as per the deprecation warning.
+この時点では、非推奨の警告に従ってクラスターがnon-kubeadmからkubeadmにアップグレードされています。
 
 ```ShellSession
 ansible-playbook -i inventory/mycluster/hosts.ini -b upgrade-cluster.yml
@@ -271,11 +270,10 @@ caprica   Ready    master,node   7h40m   v1.14.1
 
 ```
 
-## Upgrade order
+## アップグレードの順序
 
-As mentioned above, components are upgraded in the order in which they were
-installed in the Ansible playbook. The order of component installation is as
-follows:
+前述したように、コンポーネントはAnsible playbookにインストールした順番でアップグレードされます。
+コンポーネントのインストール順は以下の通りです:
 
 * Docker
 * etcd
@@ -284,29 +282,22 @@ follows:
 * kube-apiserver, kube-scheduler, and kube-controller-manager
 * Add-ons (such as KubeDNS)
 
-## Upgrade considerations
+## アップグレードの検討
 
-Kubespray supports rotating certificates used for etcd and Kubernetes
-components, but some manual steps may be required. If you have a pod that
-requires use of a service token and is deployed in a namespace other than
-`kube-system`, you will need to manually delete the affected pods after
-rotating certificates. This is because all service account tokens are dependent
-on the apiserver token that is used to generate them. When the certificate
-rotates, all service account tokens must be rotated as well. During the
-kubernetes-apps/rotate_tokens role, only pods in kube-system are destroyed and
-recreated. All other invalidated service account tokens are cleaned up
-automatically, but other pods are not deleted out of an abundance of caution
-for impact to user deployed pods.
+KubesprayはetcdとKubernetesコンポーネントで使用される証明書のローテーションをサポートしていますが、いくつかの手動の手順が必要な場合があります。
+サービストークンの使用を必要とするポッドがあり、`kube-system` 以外の名前空間にデプロイされている場合は、証明書をローテーションさせた後、影響を受けるポッドを手動で削除する必要があります。
+これは、すべてのサービスアカウントのトークンが、それらを生成するために使用されるapiserverのトークンに依存しているからです。
+証明書がローテーションすると、すべてのサービスアカウントのトークンもローテーションさせる必要があります。
+kubernetes-apps/rotate_tokensロールであれば、kube-system 内のポッドのみが破壊され、再作成されます。
+無効になった他のすべてのサービスアカウントトークンは自動的にクリーンアップされますが、他のポッドは、ユーザが展開したポッドへの影響を考慮して削除されません。
 
-### Component-based upgrades
+### コンポーネントベースのアップグレード
 
-A deployer may want to upgrade specific components in order to minimize risk
-or save time. This strategy is not covered by CI as of this writing, so it is
-not guaranteed to work.
+デプロイを行う人はリスクを最小化したり、時間を節約したりするために、特定のコンポーネントをアップグレードしたいと思うかもしれません。
+この戦略は、この記事を書いている時点ではCIがカバーしていないので、動作が保証されているわけではありません。
 
-These commands are useful only for upgrading fully-deployed, healthy, existing
-hosts. This will definitely not work for undeployed or partially deployed
-hosts.
+これらのコマンドは、完全に配備された健全な既存のホストをアップグレードする場合にのみ有用です。
+デプロイされていないホストや部分的にデプロイされているホストには絶対に使えません。
 
 Upgrade docker:
 
