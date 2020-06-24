@@ -23,7 +23,7 @@ kube-node_に_etcd_が含まれている場合は、Kubernetesのワークロー
 
 また、2つの特別なグループがあります:
 
-* **calico-rr** : [Calicoのネットワーキング先進事例](calico.md)の解説
+* **calico-rr** : [Calicoのネットワーキング先進事例](/docs/calico.md)の解説
 * **bastion** : ノードに直接アクセスできない場合には bastion ホストを設定します
 
 以下は完全なinventoryの例です。:
@@ -177,4 +177,4 @@ Ansibleと踏み台インスタンスの詳細については
 
 ## Mitogen
 
-[mitogen](mitogen.md)を使用して、kubesprayを高速化できます。
+[mitogen](/docs/mitogen.md)を使用して、kubesprayを高速化できます。
