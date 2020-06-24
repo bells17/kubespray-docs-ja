@@ -2,11 +2,11 @@
 * [比較](/docs/comparisons.md)
 * [はじめに](/docs/getting-started.md)
 * [Ansible](docs/ansible.md)
-* [Variables](/docs/vars.md)
+* [変数](/docs/vars.md)
 * Operations
   * [Integration](docs/integration.md)
   * [Upgrades](/docs/upgrades.md)
-  * [HA Mode](docs/ha-mode.md)
+  * [HAモード](docs/ha-mode.md)
   * [Adding/replacing a node](docs/nodes.md)
   * [Large deployments](docs/large-deployments.md)
   * [Air-Gap Installation](docs/offline-environment.md)

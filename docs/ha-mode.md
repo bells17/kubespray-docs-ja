@@ -1,54 +1,42 @@
-# HA endpoints for K8s
+# k8sのHAエンドポイント
 
-The following components require a highly available endpoints:
+以下のコンポーネントは、高可用性のエンドポイントを必要とします:
 
 * etcd cluster,
 * kube-apiserver service instances.
 
-The latter relies on a 3rd side reverse proxy, like Nginx or HAProxy, to
-achieve the same goal.
+後者は同じ目標を達成するために、NginxやHAProxyのような3rdサイドのリバースプロキシに依存しています。
 
 ## Etcd
 
-The etcd clients (kube-api-masters) are configured with the list of all etcd peers. If the etcd-cluster has multiple instances, it's configured in HA already.
+etcdクライアント(kube-api-master)にはすべてのetcdピアのリストが設定されています。
+etcdクラスタに複数のインスタンスがある場合は、すでにHAで構成されています。
 
 ## Kube-apiserver
 
-K8s components require a loadbalancer to access the apiservers via a reverse
-proxy. Kubespray includes support for an nginx-based proxy that resides on each
-non-master Kubernetes node. This is referred to as localhost loadbalancing. It
-is less efficient than a dedicated load balancer because it creates extra
-health checks on the Kubernetes apiserver, but is more practical for scenarios
-where an external LB or virtual IP management is inconvenient.  This option is
-configured by the variable `loadbalancer_apiserver_localhost` (defaults to
-`True`. Or `False`, if there is an external `loadbalancer_apiserver` defined).
-You may also define the port the local internal loadbalancer uses by changing,
-`loadbalancer_apiserver_port`.  This defaults to the value of
-`kube_apiserver_port`. It is also important to note that Kubespray will only
-configure kubelet and kube-proxy on non-master nodes to use the local internal
-loadbalancer.
+k8sコンポーネントは、リバースプロキシ経由でAPIサーバーにアクセスするためにロードバランサーを必要とします。
+Kubesprayには、マスター以外の各Kubernetesノードにあるnginxベースのプロキシのサポートが含まれています。
+これはlocalhostロードバランシングと呼ばれます。
+Kubernetes apiserverで追加のヘルスチェックを作成するため、専用のロードバランサーよりも効率的ではありませんが、外部LBまたは仮想IP管理が不便なシナリオではより実用的です。
+このオプションは`loadbalancer_apiserver_localhost` 変数によって設定されます（デフォルトは `True` です。また、外部の `loadbalancer_apiserver` が定義されている場合は `False` です）。
+また `loadbalancer_apiserver_port`を変更して、ローカルの内部ロードバランサーが使用するポートを定義することもできます。
+これはデフォルトで `kube_apiserver_port` の値になります。
+Kubesprayがローカルマスターロードバランサーを使用するように非マスターノードでのみkubeletとkube-proxyを構成することに注意することも重要です。
 
-If you choose to NOT use the local internal loadbalancer, you will need to
-configure your own loadbalancer to achieve HA. Note that deploying a
-loadbalancer is up to a user and is not covered by ansible roles in Kubespray.
-By default, it only configures a non-HA endpoint, which points to the
-`access_ip` or IP address of the first server node in the `kube-master` group.
-It can also configure clients to use endpoints for a given loadbalancer type.
-The following diagram shows how traffic to the apiserver is directed.
+ローカルの内部ロードバランサーを使用しない場合は、HAを実現するために独自のロードバランサーを構成する必要があります。
+ロードバランサーのデプロイはユーザー次第であり、Kubesprayのansibleロールではカバーされないことに注意してください。
+デフォルトでは、非HAエンドポイントのみを設定します。これは、 `kube-master` グループの最初のサーバーノードの `access_ip` またはIPアドレスを指します。
+また、特定のロードバランサータイプのエンドポイントを使用するようにクライアントを構成することもできます。
+次の図は、apiserverへのトラフィックがどのように送信されるかを示しています。
 
 ![Image](figures/loadbalancer_localhost.png?raw=true)
 
-  Note: Kubernetes master nodes still use insecure localhost access because
-  there are bugs in Kubernetes <1.5.0 in using TLS auth on master role
-  services. This makes backends receiving unencrypted traffic and may be a
-  security issue when interconnecting different nodes, or maybe not, if those
-  belong to the isolated management network without external access.
+  注意: Kubernetesマスターノードは、マスターロールサービスでTLS authを使用している1.5.0未満のKubernetesにバグがあるため、安全ではないローカルホストアクセスを使用しています。
+  これにより、バックエンドが暗号化されていないトラフィックを受信するようになり、異なるノードを相互接続する際にセキュリティ上の問題となる可能性がありますが、外部からのアクセスなしで隔離された管理ネットワークに属している場合は、問題にはならないしれません。
 
-A user may opt to use an external loadbalancer (LB) instead. An external LB
-provides access for external clients, while the internal LB accepts client
-connections only to the localhost.
-Given a frontend `VIP` address and `IP1, IP2` addresses of backends, here is
-an example configuration for a HAProxy service acting as an external LB:
+ユーザーは代わりに外部ロードバランサー（LB）を使用することを選択できます。
+外部LBは外部クライアントへのアクセスを提供しますが、内部LBはローカルホストへのクライアント接続のみを受け入れます。
+フロントエンドの `VIP` アドレスとバックエンドの `IP1, IP2` アドレスが与えられた場合に外部LBとして機能するHAProxyサービスの構成例を次に示します:
 
 ```raw
 listen kubernetes-apiserver-https
@@ -62,10 +50,9 @@ listen kubernetes-apiserver-https
   balance roundrobin
 ```
 
-  Note: That's an example config managed elsewhere outside of Kubespray.
+  注意：これはKubespray以外の場所で管理される構成の例です。
 
-And the corresponding example global vars for such a "cluster-aware"
-external LB with the cluster API access modes configured in Kubespray:
+そして、Kubesprayで構成されたクラスターAPIアクセスモードを備えた「クラスター対応」外部LBに対応するグローバル変数の例:
 
 ```yml
 apiserver_loadbalancer_domain_name: "my-apiserver-lb.example.com"
@@ -74,78 +61,63 @@ loadbalancer_apiserver:
   port: 8383
 ```
 
-  Note: The default kubernetes apiserver configuration binds to all interfaces,
-  so you will need to use a different port for the vip from that the API is
-  listening on, or set the `kube_apiserver_bind_address` so that the API only
-  listens on a specific interface (to avoid conflict with haproxy binding the
-  port on the VIP address)
+  注意：デフォルトのkubernetes apiserver構成はすべてのインターフェースにバインドするため、APIがリッスンしているvipに別のポートを使用するか、APIが特定のインターフェースのみをリッスンするように `kube_apiserver_bind_address` を設定する必要があります（VIPアドレスのポートをバインドするhaproxyとの競合を回避するために）
 
-This domain name, or default "lb-apiserver.kubernetes.local", will be inserted
-into the `/etc/hosts` file of all servers in the `k8s-cluster` group and wired
-into the generated self-signed TLS/SSL certificates as well. Note that
-the HAProxy service should as well be HA and requires a VIP management, which
-is out of scope of this doc.
+このドメイン名、またはデフォルトの「lb-apiserver.kubernetes.local」は、`k8s-cluster` グループ内のすべてのサーバの `/etc/hosts` ファイルに追加され、生成された自己署名TLS/SSL証明書にも挿入されます。
+HAProxyサービスはHAであるべきであり、VIP管理が必要であることに注意してください。
 
-There is a special case for an internal and an externally configured (not with
-Kubespray) LB used simultaneously. Keep in mind that the cluster is not aware
-of such an external LB and you need no to specify any configuration variables
-for it.
+内部LBと外部設定された(Kubesprayによって構成したのではない)LBを同時に使用する場合には特別なケースがあります。
+クラスタはそのような外部LBを認識していないことに注意してください。
 
-  Note: TLS/SSL termination for externally accessed API endpoints' will **not**
-  be covered by Kubespray for that case. Make sure your external LB provides it.
-  Alternatively you may specify an externally load balanced VIPs in the
-  `supplementary_addresses_in_ssl_keys` list. Then, kubespray will add them into
-  the generated cluster certificates as well.
+  注意: 外部からアクセスされたAPIエンドポイントのTLS/SSL終端は、Kubespray によってカバーされるケースの対象外となります。
+  外部LBがTLS/SSL終端機能を提供していることを確認してください。
+  あるいは、`supplementary_addresses_in_ssl_keys` リストに外部からの負荷分散されたVIPを指定することもできます。
+  指定することでkubesprayは生成されたクラスタ証明書にもそれらを追加します。
 
-Aside of that specific case, the `loadbalancer_apiserver` considered mutually
-exclusive to `loadbalancer_apiserver_localhost`.
+この特定のケースは別として、`loadbalancer_apiserver` は `loadbalancer_apiserver_localhost` とは同時に設定することはできないと考えられます。
 
-Access API endpoints are evaluated automatically, as the following:
+アクセスAPIのエンドポイントは以下のように自動的に評価されます:
 
-| Endpoint type                | kube-master      | non-master              | external              |
+| エンドポイントタイプ              | master           | master以外               | 外部                   |
 |------------------------------|------------------|-------------------------|-----------------------|
-| Local LB (default)           | `https://bip:sp` | `https://lc:nsp`        | `https://m[0].aip:sp` |
-| Local LB + Unmanaged here LB | `https://bip:sp` | `https://lc:nsp`        | `https://ext`         |
-| External LB, no internal     | `https://bip:sp` | `<https://lb:lp>`       | `https://lb:lp`       |
-| No ext/int LB                | `https://bip:sp` | `<https://m[0].aip:sp>` | `https://m[0].aip:sp` |
+| ローカルLB (デフォルト)          | `https://bip:sp` | `https://lc:nsp`        | `https://m[0].aip:sp` |
+| ローカルLB + マネージドでないLB    | `https://bip:sp` | `https://lc:nsp`        | `https://ext`         |
+| 外部LB(内部LBでない)            | `https://bip:sp` | `<https://lb:lp>`       | `https://lb:lp`       |
+| 外部/内部LBでない               | `https://bip:sp` | `<https://m[0].aip:sp>` | `https://m[0].aip:sp` |
 
 Where:
 
-* `m[0]` - the first node in the `kube-master` group;
-* `lb` - LB FQDN, `apiserver_loadbalancer_domain_name`;
-* `ext` - Externally load balanced VIP:port and FQDN, not managed by Kubespray;
-* `lc` - localhost;
-* `bip` - a custom bind IP or localhost for the default bind IP '0.0.0.0';
-* `nsp` - nginx secure port, `loadbalancer_apiserver_port`, defers to `sp`;
-* `sp` - secure port, `kube_apiserver_port`;
-* `lp` - LB port, `loadbalancer_apiserver.port`, defers to the secure port;
-* `ip` - the node IP, defers to the ansible IP;
-* `aip` - `access_ip`, defers to the ip.
+* `m[0]` - `kube-master` グループの最初のノード;
+* `lb` - LBのFQDN, `apiserver_loadbalancer_domain_name`;
+* `ext` - 外部で負荷分散されたVIP:ポートとFQDN、Kubesprayによって管理されない;
+* `lc` - ローカルホスト;
+* `bip` - デフォルトのバインドIP「0.0.0.0」のカスタムバインドIPまたはlocalhost;
+* `nsp` -  nginxの安全なポート, `loadbalancer_apiserver_port`, `sp` に従う;
+* `sp` - 安全なポート, `kube_apiserver_port`;
+* `lp` - LBのポート, `loadbalancer_apiserver.port`, 安全なポートに従う;
+* `ip` -　ノードIP, ansible IPに従う;
+* `aip` - `access_ip`, ipに従う.
 
-A second and a third column represent internal cluster access modes. The last
-column illustrates an example URI to access the cluster APIs externally.
-Kubespray has nothing to do with it, this is informational only.
+2番目と3番目の列は、内部クラスターアクセスモードを表します。
+最後の列は、クラスターAPIに外部からアクセスするためのURIの例を示しています。
+Kubesprayはそれとは何の関係もありません。これは情報提供のみを目的としています。
 
-As you can see, the masters' internal API endpoints are always
-contacted via the local bind IP, which is `https://bip:sp`.
+ご覧のように、マスターの内部APIエンドポイントは常にローカルバインドIP（ `https://bip:sp` ）を介して接続されます。
 
-**Note** that for some cases, like healthchecks of applications deployed by
-Kubespray, the masters' APIs are accessed via the insecure endpoint, which
-consists of the local `kube_apiserver_insecure_bind_address` and
-`kube_apiserver_insecure_port`.
+**注意** Kubesprayによってデプロイされたアプリケーションのヘルスチェックなどの場合、マスターのAPIは、ローカルの `kube_apiserver_insecure_bind_address` と ` kube_apiserver_insecure_port` で構成される安全でないエンドポイントを介してアクセスされることに注意してください。
 
 ## Optional configurations
 
-### ETCD with a LB
+### ETCDとLB
 
-In order to use an external loadbalancing (L4/TCP or L7 w/ SSL Passthrough VIP), the following variables need to be overridden in group_vars
+外部ロードバランシング（L4/TCPまたはSSLパススルーVIP付きのL7）を使用するには、group_varsで次の変数を上書きする必要があります
 
 * `etcd_access_addresses`
 * `etcd_client_url`
 * `etcd_cert_alt_names`
 * `etcd_cert_alt_ips`
 
-#### Example of a VIP w/ FQDN
+#### VIPとFQDNの例
 
 ```yaml
 etcd_access_addresses: https://etcd.example.com:2379
@@ -155,10 +127,10 @@ etcd_cert_alt_names:
   - "etcd.kube-system.svc"
   - "etcd.kube-system"
   - "etcd"
-  - "etcd.example.com" # This one needs to be added to the default etcd_cert_alt_names
+  - "etcd.example.com" # これはデフォルトのetcd_cert_alt_namesに追加する必要があります
 ```
 
-#### Example of a VIP w/o FQDN (IP only)
+#### VIPとFQDN (IPのみ)の例
 
 ```yaml
 etcd_access_addresses: https://2.3.7.9:2379
